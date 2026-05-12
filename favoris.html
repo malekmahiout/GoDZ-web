@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mes Favoris — GoDZ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .favs-layout { display: grid; grid-template-columns: 280px 1fr; gap: 0; min-height: calc(100vh - var(--nav-h)); padding-top: var(--nav-h); }
+    .favs-sidebar { background: white; border-right: 1px solid var(--border); padding: 24px; position: sticky; top: var(--nav-h); height: calc(100vh - var(--nav-h)); overflow-y: auto; }
+    .favs-main { padding: 28px 24px; }
+    .collection-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;
+      cursor: pointer; border: 1.5px solid var(--border); margin-bottom: 8px; background: white;
+      transition: border-color 150ms, background 150ms; font-family: inherit; text-align: left; width: 100%;
+    }
+    .collection-item:hover { border-color: var(--green); background: rgba(0,98,51,0.02); }
+    .collection-item.active { border-color: var(--green); background: rgba(0,98,51,0.06); }
+    .collection-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--light); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .collection-name { font-weight: 700; font-size: 0.9rem; color: var(--dark); }
+    .collection-count { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .new-collection-form { background: var(--light); border-radius: 12px; padding: 14px; margin-top: 16px; }
+    @media(max-width:768px) { .favs-layout { grid-template-columns: 1fr; } .favs-sidebar { position:static; height:auto; border-right:none; border-bottom:1px solid var(--border); } }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="navbar-logo" aria-hidden="true"><img src="assets/favicon.png" alt="GoDZ" style="width:100%;height:100%;object-fit:contain"/></div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="explorer.html">Explorer</a></li>
+    <li style="position:relative"><a href="favoris.html" class="active"><span class="fav-count" style="display:none;position:absolute;top:8px;right:-4px;background:var(--red);color:white;font-size:0.55rem;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center"></span>Favoris</a></li>
+    <li><a href="carte.html">Carte</a></li>
+    <li><a href="itineraire.html">Circuit</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
+    </div>
+</nav>
+
+<div class="favs-layout">
+  <!-- Sidebar: Collections -->
+  <aside class="favs-sidebar">
+    <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:20px">Mes collections</h2>
+
+    <button class="collection-item active" onclick="showCollection('all',this)" id="col-all">
+      <div class="collection-icon">
+        <svg style="width:20px;height:20px;color:var(--green)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div>
+        <div class="collection-name">Tous mes favoris</div>
+        <div class="collection-count" id="all-count">0 lieux</div>
+      </div>
+    </button>
+
+    <div id="user-collections"></div>
+
+    <!-- New collection form -->
+    <div class="new-collection-form">
+      <p style="font-size:0.8rem;font-weight:700;color:var(--muted);margin-bottom:10px">Nouvelle collection</p>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="new-col-input" class="search-input" placeholder="Nom de la collection" style="flex:1;padding:8px 12px;font-size:0.85rem"/>
+        <button class="btn btn-primary btn-sm" onclick="createCollection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="favs-main">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:800;margin-bottom:4px" id="page-title">Tous mes favoris</h1>
+        <p style="font-size:0.88rem;color:var(--muted)" id="page-subtitle">Lieux sauvegardés</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-sm" onclick="exportFavorites()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exporter
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="clearAll()" style="color:var(--red)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Tout effacer
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap" id="stats-row"></div>
+
+    <!-- Places grid -->
+    <div class="places-grid" id="favs-grid"></div>
+  </main>
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <a href="index.html" class="mobile-nav-item"><img src="assets/favicon.png" alt="GoDZ" style="width:22px;height:22px;object-fit:contain;border-radius:5px"/>Accueil</a>
+    <a href="explorer.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Explorer</a>
+    <a href="carte.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/></svg>Carte</a>
+    <a href="favoris.html" class="mobile-nav-item active"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Favoris</a>
+    <a href="itineraire.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Circuit</a>
+  </div>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  const COLS_KEY = 'godz_collections';
+  function getCollections() { try { return JSON.parse(localStorage.getItem(COLS_KEY) || '[]'); } catch { return []; } }
+  function saveCollections(cols) { localStorage.setItem(COLS_KEY, JSON.stringify(cols)); }
+
+  let currentCol = 'all';
+
+  function renderCollections() {
+    const cols = getCollections();
+    const all = getFavorites();
+    document.getElementById('all-count').textContent = `${all.length} lieux`;
+    document.getElementById('user-collections').innerHTML = cols.map(col => `
+      <button class="collection-item${currentCol===col.id?' active':''}" onclick="showCollection('${col.id}',this)" id="col-${col.id}">
+        <div class="collection-icon">${col.emoji||'📁'}</div>
+        <div>
+          <div class="collection-name">${col.name}</div>
+          <div class="collection-count">${col.places.length} lieux</div>
+        </div>
+        <button onclick="event.stopPropagation();deleteCollection('${col.id}')" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);padding:4px" aria-label="Supprimer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </button>`).join('');
+  }
+
+  function showCollection(colId, btn) {
+    currentCol = colId;
+    document.querySelectorAll('.collection-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    let places, title, subtitle;
+    if (colId === 'all') {
+      places = getFavoritePlaces();
+      title = 'Tous mes favoris';
+      subtitle = `${places.length} lieux sauvegardés`;
+    } else {
+      const col = getCollections().find(c => c.id === colId);
+      if (!col) return;
+      places = PLACES.filter(p => col.places.includes(p.id));
+      title = col.name;
+      subtitle = `${places.length} lieux dans cette collection`;
+    }
+
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('page-subtitle').textContent = subtitle;
+
+    // Stats
+    if (places.length) {
+      const catBreak = {};
+      places.forEach(p => { catBreak[p.category] = (catBreak[p.category]||0)+1; });
+      const statsHtml = Object.entries(catBreak).map(([cat,cnt]) => `
+        <div style="background:white;border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:0.82rem">
+          <div style="font-weight:700;color:${CAT_COLORS[cat]}">${CAT_LABELS[cat]}</div>
+          <div style="font-size:1.2rem;font-weight:900;color:var(--dark)">${cnt}</div>
+        </div>`).join('');
+      document.getElementById('stats-row').innerHTML = statsHtml;
+    } else {
+      document.getElementById('stats-row').innerHTML = '';
+    }
+
+    if (!places.length) {
+      document.getElementById('favs-grid').innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <h3>Aucun favori</h3>
+          <p>Explorez des lieux et cliquez sur le ♥ pour les sauvegarder.</p>
+          <a href="explorer.html" class="btn btn-primary" style="margin-top:16px">Explorer les lieux</a>
+        </div>`;
+      return;
+    }
+
+    renderGrid(places, document.getElementById('favs-grid'));
+
+    // Add move-to-collection button to each card
+    const cols = getCollections();
+    if (cols.length) {
+      document.querySelectorAll('#favs-grid .card').forEach((card, i) => {
+        const pid = card.dataset.id;
+        const select = document.createElement('select');
+        select.className = 'select';
+        select.style.cssText = 'width:100%;margin-top:8px;font-size:0.8rem';
+        select.innerHTML = '<option value="">Ajouter à une collection...</option>' +
+          cols.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        select.addEventListener('change', e => {
+          if (!e.target.value) return;
+          addToCollection(pid, e.target.value);
+          e.target.value = '';
+        });
+        card.querySelector('.card-body').appendChild(select);
+      });
+    }
+  }
+
+  function createCollection() {
+    const input = document.getElementById('new-col-input');
+    const name = input.value.trim();
+    if (!name) return;
+    const cols = getCollections();
+    const emojis = ['📍','🏖️','🏔️','🌅','🎭','🍽️'];
+    cols.push({ id: Date.now().toString(), name, emoji: emojis[cols.length % emojis.length], places: [] });
+    saveCollections(cols);
+    input.value = '';
+    renderCollections();
+    showToast(`Collection "${name}" créée`, 'success');
+  }
+
+  function deleteCollection(id) {
+    if (!confirm('Supprimer cette collection ?')) return;
+    const cols = getCollections().filter(c => c.id !== id);
+    saveCollections(cols);
+    if (currentCol === id) showCollection('all', document.getElementById('col-all'));
+    renderCollections();
+  }
+
+  function addToCollection(placeId, colId) {
+    const cols = getCollections();
+    const col = cols.find(c => c.id === colId);
+    if (!col) return;
+    if (!col.places.includes(placeId)) col.places.push(placeId);
+    saveCollections(cols);
+    renderCollections();
+    showToast(`Ajouté à "${col.name}"`, 'success');
+  }
+
+  function clearAll() {
+    if (!confirm('Supprimer tous les favoris ?')) return;
+    localStorage.removeItem(FAVS_KEY);
+    updateFavBadge();
+    renderCollections();
+    showCollection('all', document.getElementById('col-all'));
+  }
+
+  function exportFavorites() {
+    const places = getFavoritePlaces();
+    const data = places.map(p => ({ nom: p.nameFr, wilaya: p.wilaya, categorie: CAT_LABELS[p.category], note: p.googleRating, lat: p.latitude, lng: p.longitude }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'godz-favoris.json';
+    a.click();
+    showToast('Export téléchargé', 'success');
+  }
+
+  // Init
+  renderCollections();
+  showCollection('all', document.getElementById('col-all'));
+</script>
+</body>
+</html>

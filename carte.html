@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carte interactive — GoDZ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    body { overflow: hidden; }
+    .map-page { display: flex; height: calc(100vh - var(--nav-h)); padding-top: var(--nav-h); }
+    #map { flex: 1; z-index: 1; }
+    .map-sidebar {
+      width: 340px; flex-shrink: 0; background: white; border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; z-index: 2; overflow: hidden;
+    }
+    .map-controls { padding: 16px; border-bottom: 1px solid var(--border); background: white; }
+    .map-list { overflow-y: auto; flex: 1; padding: 12px; }
+    .map-list-item {
+      display: flex; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer;
+      transition: background 150ms; align-items: flex-start; text-decoration: none; color: inherit;
+      border: 1px solid transparent;
+    }
+    .map-list-item:hover { background: var(--light); border-color: var(--border); }
+    .map-list-item.active { background: rgba(0,98,51,0.06); border-color: var(--green); }
+    .map-list-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: var(--border); }
+    .map-list-body { flex: 1; min-width: 0; }
+    .map-list-name { font-size: 0.88rem; font-weight: 700; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .map-list-meta { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+    .map-list-rating { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 0.75rem; font-weight: 600; }
+    .radius-badge { display: inline-block; background: var(--green); color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-left: 4px; }
+    .map-toggle-btn {
+      position: absolute; top: calc(var(--nav-h) + 12px); right: 356px; z-index: 10;
+      background: white; border: 1px solid var(--border); border-radius: 10px;
+      width: 40px; height: 40px; display: none; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: var(--card-shadow);
+    }
+    @media(max-width:768px) {
+      .map-sidebar { position: absolute; right: 0; top: var(--nav-h); bottom: 70px; width: 100%; max-width: 340px; transform: translateX(100%); transition: transform 250ms ease; }
+      .map-sidebar.open { transform: translateX(0); }
+      .map-toggle-btn { display: flex; right: 12px; }
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="navbar-logo" aria-hidden="true"><img src="assets/favicon.png" alt="GoDZ" style="width:100%;height:100%;object-fit:contain"/></div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="explorer.html">Explorer</a></li>
+    <li style="position:relative"><a href="favoris.html"><span class="fav-count" style="display:none;position:absolute;top:8px;right:-4px;background:var(--red);color:white;font-size:0.55rem;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center"></span>Favoris</a></li>
+    <li><a href="carte.html" class="active">Carte</a></li>
+    <li><a href="itineraire.html">Circuit</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
+    </div>
+</nav>
+
+<button class="map-toggle-btn" id="sidebar-toggle" aria-label="Voir la liste">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+</button>
+
+<div class="map-page">
+  <div id="map"></div>
+  <aside class="map-sidebar" id="map-sidebar">
+    <div class="map-controls">
+      <h2 style="font-size:1rem;font-weight:800;margin-bottom:12px">Carte interactive</h2>
+      <!-- Search -->
+      <div class="search-wrap" style="margin-bottom:10px">
+        <input type="text" id="map-search" class="search-input" placeholder="Rechercher un lieu..." aria-label="Rechercher sur la carte"/>
+        <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      </div>
+      <!-- Category chips -->
+      <div class="filters" style="margin-bottom:10px">
+        <button class="chip active" data-cat="" onclick="filterMap('',this)">Tous</button>
+        <button class="chip" data-cat="monuments" onclick="filterMap('monuments',this)" style="--dot:#B8912A">Monuments</button>
+        <button class="chip" data-cat="plages" onclick="filterMap('plages',this)">Plages</button>
+        <button class="chip" data-cat="restaurants" onclick="filterMap('restaurants',this)">Restaurants</button>
+        <button class="chip" data-cat="culture" onclick="filterMap('culture',this)">Culture</button>
+        <button class="chip" data-cat="salons" onclick="filterMap('salons',this)">Salons</button>
+        <button class="chip" data-cat="artisanat" onclick="filterMap('artisanat',this)">Artisanat</button>
+      </div>
+      <!-- Geolocation -->
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-primary btn-sm" onclick="locateMe()" id="locate-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          Ma position
+        </button>
+        <div class="select-wrap">
+          <select id="radius-select" class="select" onchange="updateRadius()" style="font-size:0.8rem;padding:7px 28px 7px 10px">
+            <option value="0">Rayon</option>
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+            <option value="20">20 km</option>
+            <option value="50">50 km</option>
+          </select>
+          <span class="select-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </div>
+      </div>
+      <!-- Address search -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        <p style="font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Aller à une adresse</p>
+        <div style="position:relative">
+          <div class="search-wrap" style="margin-bottom:0">
+            <input type="text" id="addr-search" class="search-input" placeholder="Saisir une adresse..." autocomplete="off"/>
+            <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></span>
+          </div>
+          <div id="addr-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--green);border-top:none;border-radius:0 0 10px 10px;z-index:1001;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12)"></div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:10px 12px;background:var(--light);border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--muted)">
+      <span id="map-count">… lieux</span> affichés sur la carte
+    </div>
+    <div class="map-list" id="map-list"></div>
+  </aside>
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <a href="index.html" class="mobile-nav-item"><img src="assets/favicon.png" alt="GoDZ" style="width:22px;height:22px;object-fit:contain;border-radius:5px"/>Accueil</a>
+    <a href="explorer.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Explorer</a>
+    <a href="carte.html" class="mobile-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Carte</a>
+    <a href="favoris.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Favoris</a>
+    <a href="itineraire.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Circuit</a>
+  </div>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  let map, markers = [], radiusCircle = null, userMarker = null;
+  let activeCategory = '';
+  let searchText = '';
+  let userPos = null;
+  let radiusKm = 0;
+  let displayed = [...PLACES];
+
+  // Init map centered on Algeria
+  map = L.map('map', { zoomControl: true }).setView([28.0339, 1.6596], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
+  }).addTo(map);
+
+  // If URL has lat/lng params, center there
+  const params = new URLSearchParams(location.search);
+  if (params.get('lat') && params.get('lng')) {
+    map.setView([parseFloat(params.get('lat')), parseFloat(params.get('lng'))], 14);
+    const targeted = PLACES.find(p => p.id === params.get('id'));
+    if (targeted) setTimeout(() => focusPlace(targeted), 500);
+  }
+
+  function makeMarker(place) {
+    const icon = L.divIcon({
+      html: `<div style="background:${CAT_COLORS[place.category]};width:12px;height:12px;border-radius:50%;border:2.5px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer"></div>`,
+      iconSize:[17,17], iconAnchor:[8,8], className:''
+    });
+    const m = L.marker([place.latitude, place.longitude], {icon});
+    m.bindPopup(`
+      <div class="map-popup">
+        <h4>${place.nameFr}</h4>
+        <p>${place.wilaya} · ${CAT_LABELS[place.category]}</p>
+        <div style="display:flex;align-items:center;gap:4px;margin-bottom:8px;font-size:0.78rem;color:#F59E0B;font-weight:600">★ ${place.googleRating} (${fmtReviews(place.googleReviewCount)})</div>
+        <a href="lieu.html?id=${place.id}" class="btn btn-sm btn-primary" style="display:block;text-align:center">Voir le lieu</a>
+      </div>`, {maxWidth:220});
+    m.on('click', () => highlightListItem(place.id));
+    return m;
+  }
+
+  function renderMarkers() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    displayed.forEach(place => {
+      const m = makeMarker(place);
+      m.addTo(map);
+      markers.push(m);
+    });
+    document.getElementById('map-count').textContent = `${displayed.length} lieux`;
+    renderList();
+  }
+
+  function renderList() {
+    const list = document.getElementById('map-list');
+    if (!displayed.length) {
+      list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>Aucun lieu</h3><p>Essayez d'autres filtres.</p></div>`;
+      return;
+    }
+    const top = displayed.slice(0,80);
+    list.innerHTML = top.map(p => `
+      <a href="javascript:void(0)" class="map-list-item" id="li-${p.id}" onclick="focusPlace(PLACES.find(x=>x.id==='${p.id}'))">
+        <img class="map-list-img" src="https://picsum.photos/seed/${p.id.replace(/[^a-z0-9]/gi,'')}/120/120" alt="${p.nameFr}" loading="lazy" onerror="this.src='https://picsum.photos/seed/algeria/120/120'"/>
+        <div class="map-list-body">
+          <div class="map-list-name">${p.nameFr}</div>
+          <div class="map-list-meta">${p.wilaya} · <span style="color:${CAT_COLORS[p.category]}">${CAT_LABELS[p.category]}</span>${userPos&&radiusKm>0?`<span class="radius-badge">${getDistance(userPos.lat,userPos.lng,p.latitude,p.longitude).toFixed(1)}km</span>`:''}</div>
+          <div class="map-list-rating">
+            <svg style="width:12px;height:12px;color:#F59E0B" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            ${p.googleRating} (${fmtReviews(p.googleReviewCount)})
+          </div>
+        </div>
+      </a>`).join('') + (displayed.length > 80 ? `<div style="text-align:center;padding:12px;font-size:0.8rem;color:var(--muted)">+${displayed.length-80} autres lieux sur la carte</div>` : '');
+  }
+
+  function applyFilters() {
+    displayed = PLACES.filter(p => {
+      if (activeCategory && p.category !== activeCategory) return false;
+      if (searchText) {
+        const q = searchText.toLowerCase();
+        if (!p.nameFr.toLowerCase().includes(q) && !p.wilaya.toLowerCase().includes(q)) return false;
+      }
+      if (userPos && radiusKm > 0) {
+        const dist = getDistance(userPos.lat, userPos.lng, p.latitude, p.longitude);
+        if (dist > radiusKm) return false;
+      }
+      return true;
+    });
+    renderMarkers();
+  }
+
+  function filterMap(cat, btn) {
+    activeCategory = cat;
+    document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters();
+  }
+
+  function focusPlace(place) {
+    if (!place) return;
+    map.setView([place.latitude, place.longitude], 15);
+    highlightListItem(place.id);
+    const m = markers.find((mk, i) => displayed[i]?.id === place.id);
+    if (m) m.openPopup();
+  }
+
+  function highlightListItem(id) {
+    document.querySelectorAll('.map-list-item').forEach(el => el.classList.remove('active'));
+    const el = document.getElementById('li-'+id);
+    if (el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  }
+
+  function locateMe() {
+    const btn = document.getElementById('locate-btn');
+    btn.textContent = 'Localisation...';
+    btn.disabled = true;
+    navigator.geolocation?.getCurrentPosition(pos => {
+      userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if (userMarker) map.removeLayer(userMarker);
+      const userIcon = L.divIcon({
+        html: `<div style="position:relative;width:20px;height:20px">
+          <div style="position:absolute;inset:0;background:rgba(0,98,51,0.2);border-radius:50%;animation:pulse 1.5s ease-in-out infinite"></div>
+          <div style="position:absolute;top:5px;left:5px;width:10px;height:10px;background:var(--green);border-radius:50%;border:2px solid white"></div>
+        </div>`,
+        iconSize:[20,20], iconAnchor:[10,10], className:''
+      });
+      userMarker = L.marker([userPos.lat, userPos.lng], {icon:userIcon}).addTo(map).bindPopup('Votre position').openPopup();
+      map.setView([userPos.lat, userPos.lng], 11);
+      updateRadius();
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px"><circle cx="12" cy="12" r="3"/></svg> Localisé';
+      btn.disabled = false;
+    }, () => {
+      // Default to Algiers
+      userPos = { lat: 36.7538, lng: 3.0588 };
+      map.setView([36.7538, 3.0588], 11);
+      btn.innerHTML = 'Ma position';
+      btn.disabled = false;
+      showToast('GPS non disponible — centré sur Alger', '');
+      updateRadius();
+    });
+  }
+
+  function updateRadius() {
+    radiusKm = parseInt(document.getElementById('radius-select').value) || 0;
+    if (radiusCircle) { map.removeLayer(radiusCircle); radiusCircle = null; }
+    if (userPos && radiusKm > 0) {
+      radiusCircle = L.circle([userPos.lat, userPos.lng], { radius: radiusKm*1000, color: '#006233', fillColor: '#006233', fillOpacity: 0.06, weight: 1.5, dashArray: '6,4' }).addTo(map);
+    }
+    applyFilters();
+  }
+
+  document.getElementById('map-search').addEventListener('input', e => { searchText = e.target.value; applyFilters(); });
+  document.getElementById('sidebar-toggle')?.addEventListener('click', () => document.getElementById('map-sidebar').classList.toggle('open'));
+
+  // Address autocomplete
+  (function() {
+    const input = document.getElementById('addr-search');
+    const dropdown = document.getElementById('addr-dropdown');
+    let addrMarker = null, timer;
+
+    function fmtAddr(item) {
+      const a = item.address || {};
+      const num  = a.house_number || '';
+      const road = a.road || a.pedestrian || a.footway || a.path || '';
+      const post = a.postcode || '';
+      const city = a.city || a.town || a.village || a.municipality || a.suburb || '';
+      let line = num && road ? `${num} ${road}` : road || item.display_name.split(',')[0];
+      const locale = [post, city].filter(Boolean).join(' ');
+      if (locale) line += `, ${locale}`;
+      return line;
+    }
+
+    function addAddrItem(text, lat, lng) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      div.style.cssText = 'padding:9px 12px;cursor:pointer;font-size:0.82rem;color:var(--dark);border-bottom:1px solid var(--border);line-height:1.4';
+      div.addEventListener('mouseover', () => div.style.background = 'rgba(0,98,51,0.06)');
+      div.addEventListener('mouseout', () => div.style.background = '');
+      div.addEventListener('mousedown', e => {
+        e.preventDefault();
+        input.value = text;
+        dropdown.style.display = 'none';
+        map.setView([lat, lng], 14);
+        if (addrMarker) map.removeLayer(addrMarker);
+        addrMarker = L.marker([lat, lng], {
+          icon: L.divIcon({
+            html: `<div style="background:var(--green);width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>`,
+            iconSize:[20,20], iconAnchor:[10,10], className:''
+          })
+        }).addTo(map).bindPopup(`<strong>${text.split(',')[0]}</strong><br/><small>${text.split(',').slice(1).join(',').trim()}</small>`).openPopup();
+      });
+      dropdown.appendChild(div);
+    }
+
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 2) { dropdown.style.display = 'none'; return; }
+      timer = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=4&addressdetails=1&accept-language=fr`);
+          const data = await res.json();
+          dropdown.innerHTML = '';
+          if (!data.length) { dropdown.style.display = 'none'; return; }
+          data.forEach(item => addAddrItem(fmtAddr(item), parseFloat(item.lat), parseFloat(item.lon)));
+          dropdown.style.display = 'block';
+        } catch { dropdown.style.display = 'none'; }
+      }, 150);
+    });
+    input.addEventListener('blur', () => setTimeout(() => { dropdown.style.display = 'none'; }, 200));
+  })();
+
+  // Add CSS for pulse animation
+  const style = document.createElement('style');
+  style.textContent = '@keyframes pulse { 0%,100%{transform:scale(1);opacity:0.6} 50%{transform:scale(2);opacity:0.2} }';
+  document.head.appendChild(style);
+
+  renderMarkers();
+</script>
+</body>
+</html>

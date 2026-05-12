@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lieu — GoDZ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .detail-container { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
+    .image-gallery { position: relative; }
+    .gallery-main { width: 100%; height: 420px; object-fit: cover; background: var(--border); display: block; }
+    .gallery-dots { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+    .gallery-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.5); cursor: pointer; transition: background 150ms, width 150ms; }
+    .gallery-dot.active { background: white; width: 20px; border-radius: 4px; }
+    .gallery-prev, .gallery-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(0,0,0,0.45); color: white; border: none; border-radius: 50%;
+      width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 150ms;
+    }
+    .gallery-prev { left: 16px; }
+    .gallery-next { right: 16px; }
+    .gallery-prev:hover, .gallery-next:hover { background: rgba(0,0,0,0.7); }
+    .gallery-prev svg, .gallery-next svg { width: 20px; height: 20px; }
+    .detail-header { padding: 28px 0 20px; }
+    .back-btn { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 0.85rem; font-weight: 500; cursor: pointer; margin-bottom: 16px; border: none; background: none; font-family: inherit; padding: 0; }
+    .back-btn:hover { color: var(--green); }
+    .detail-title { font-size: 2rem; font-weight: 900; color: var(--dark); line-height: 1.2; margin-bottom: 8px; }
+    .detail-meta-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .detail-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+    .info-item { background: var(--light); border-radius: 12px; padding: 16px; }
+    .info-item-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .info-item-value { font-size: 0.95rem; font-weight: 600; color: var(--dark); }
+    .review-card { background: var(--light); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .review-author { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .review-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--green); color: white; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+    .review-name { font-weight: 700; font-size: 0.9rem; color: var(--dark); }
+    .review-date { font-size: 0.75rem; color: var(--muted); }
+    .audio-player { background: linear-gradient(135deg, #003d1f, #006233); border-radius: 16px; padding: 20px; color: white; margin-bottom: 28px; }
+    .audio-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; opacity: 0.9; }
+    .audio-controls { display: flex; gap: 10px; align-items: center; }
+    .similar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="navbar-logo" aria-hidden="true"><img src="assets/favicon.png" alt="GoDZ" style="width:100%;height:100%;object-fit:contain"/></div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="explorer.html">Explorer</a></li>
+    <li style="position:relative"><a href="favoris.html"><span class="fav-count" style="display:none;position:absolute;top:8px;right:-4px;background:var(--red);color:white;font-size:0.55rem;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center"></span>Favoris</a></li>
+    <li><a href="carte.html">Carte</a></li>
+    <li><a href="itineraire.html">Circuit</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
+    </div>
+</nav>
+
+<div style="padding-top:var(--nav-h)">
+  <div id="place-content">
+    <div style="text-align:center;padding:80px 20px"><div class="spinner"></div><p style="color:var(--muted)">Chargement...</p></div>
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <a href="index.html" class="mobile-nav-item"><img src="assets/favicon.png" alt="GoDZ" style="width:22px;height:22px;object-fit:contain;border-radius:5px"/>Accueil</a>
+    <a href="explorer.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Explorer</a>
+    <a href="carte.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/></svg>Carte</a>
+    <a href="favoris.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Favoris</a>
+    <a href="itineraire.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Circuit</a>
+  </div>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  const placeId = getParam('id');
+  const place = PLACES.find(p => p.id === placeId);
+
+  if (!place) {
+    document.getElementById('place-content').innerHTML = `
+      <div class="empty-state" style="padding:100px 20px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <h3>Lieu introuvable</h3>
+        <p>Ce lieu n'existe pas ou a été déplacé.</p>
+        <a href="explorer.html" class="btn btn-primary" style="margin-top:16px">Retour à l'exploration</a>
+      </div>`;
+  } else {
+    // Update title
+    document.title = `${place.nameFr} — GoDZ`;
+
+    // Gallery images: Wikipedia photo first, fallback to category image
+    const catFallback = CAT_IMAGES[place.category] || 'assets/decouvrez_algerie.jpg';
+    const imgs = place.photo
+      ? [place.photo, catFallback]
+      : [catFallback];
+
+    let imgIdx = 0;
+    const isFav = isFavorite(place.id);
+
+    // Similar places
+    const similar = PLACES.filter(p => p.id !== place.id && (p.category === place.category || p.wilaya === place.wilaya)).sort((a,b) => b.popularity - a.popularity).slice(0,4);
+
+    // Mock reviews
+    const mockReviews = [
+      { author:'Ahmed B.', rating:5, text:'Un endroit absolument magnifique, à ne pas manquer lors d\'une visite en Algérie !', date:'Mars 2025' },
+      { author:'Fatima Z.', rating:4, text:'Très bel endroit, bien entretenu. Je recommande d\'y aller en matinée pour éviter la foule.', date:'Janvier 2025' },
+      { author:'Karim M.', rating:5, text:'Époustouflant ! L\'architecture est remarquable et l\'atmosphère unique. Incontournable.', date:'Décembre 2024' },
+    ];
+
+    document.getElementById('place-content').innerHTML = `
+      <!-- Image Gallery -->
+      <div class="image-gallery" id="gallery">
+        <img class="gallery-main" id="gallery-img" src="${imgs[0]}" alt="${place.nameFr}" onerror="this.src='${catFallback}'"/>
+        <button class="gallery-prev" onclick="changeImg(-1)" aria-label="Image précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
+        <button class="gallery-next" onclick="changeImg(1)" aria-label="Image suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+        <div class="gallery-dots">${imgs.map((_,i)=>`<button class="gallery-dot${i===0?' active':''}" onclick="setImg(${i})" aria-label="Image ${i+1}"></button>`).join('')}</div>
+        <div style="position:absolute;top:16px;right:16px">
+          <span style="background:${CAT_COLORS[place.category]};color:white;font-size:0.75rem;font-weight:700;padding:5px 12px;border-radius:8px">${CAT_LABELS[place.category]}</span>
+        </div>
+      </div>
+
+      <div class="detail-container">
+        <!-- Header -->
+        <div class="detail-header">
+          <button class="back-btn" onclick="history.length>1?history.back():location.href='explorer.html'" aria-label="Retour">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg>
+            Retour
+          </button>
+          <h1 class="detail-title" id="place-title">${place.nameFr}</h1>
+          <p style="font-size:0.9rem;color:var(--muted);margin-bottom:4px" dir="rtl" lang="ar">${place.nameAr}</p>
+          <div class="detail-meta-row">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span class="stars">${renderStars(place.googleRating)}</span>
+              <strong>${place.googleRating}</strong>
+              <span style="color:var(--muted);font-size:0.85rem">(${fmtReviews(place.googleReviewCount)} avis)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;color:var(--muted);font-size:0.88rem">
+              <svg style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${place.wilaya}
+            </div>
+            ${place.isFeatured ? '<span class="badge badge-gold">Lieu vedette</span>' : ''}
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-${isFav?'red':'secondary'}" id="fav-btn" onclick="toggleFavDetail()">
+              <svg viewBox="0 0 24 24" fill="${isFav?'currentColor':'none'}" stroke="currentColor" stroke-width="2" id="fav-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              ${isFav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+            </button>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.nameFr + ' ' + place.wilaya + ' Algérie')}" target="_blank" rel="noopener" class="btn btn-ghost" style="color:var(--green);border:1.5px solid var(--green)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              Ouvrir dans Google Maps
+            </a>
+            <a href="itineraire.html?wilaya=${encodeURIComponent(place.wilaya)}" class="btn btn-ghost">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Ajouter à un circuit
+            </a>
+          </div>
+        </div>
+
+        <!-- Info grid -->
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-item-label">Wilaya</div>
+            <div class="info-item-value">${place.wilaya} (W${place.wilayaCode})</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">Catégorie</div>
+            <div class="info-item-value">${CAT_LABELS[place.category]}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">Note Google</div>
+            <div class="info-item-value">${place.googleRating} / 5 (${fmtReviews(place.googleReviewCount)} avis)</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">Popularité</div>
+            <div class="info-item-value" style="display:flex;align-items:center;gap:8px">
+              <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${place.popularity}%;background:var(--green);border-radius:3px"></div>
+              </div>
+              ${place.popularity}%
+            </div>
+          </div>
+        </div>
+
+        <!-- Audio guide -->
+        <div class="audio-player">
+          <p class="audio-title">
+            <svg style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            Guide audio — ${place.nameFr}
+          </p>
+          <div class="audio-controls">
+            <button class="btn btn-sm" id="audio-btn" onclick="toggleAudio()" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3)">
+              <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px" id="audio-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Lancer le guide
+            </button>
+            <span style="font-size:0.8rem;opacity:0.7">Narration en français</span>
+          </div>
+        </div>
+
+        <!-- Description tabs -->
+        <div style="margin-bottom:28px">
+          <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px">
+            <button class="place-tab active" onclick="switchTab(event,'desc-fr')">Français</button>
+            <button class="place-tab" onclick="switchTab(event,'desc-ar')">العربية</button>
+            <button class="place-tab" onclick="switchTab(event,'desc-en')">English</button>
+          </div>
+          <div id="desc-fr" class="place-tab-pane active">
+            <p style="font-size:0.95rem;line-height:1.75;color:var(--dark)">${place.description || 'Description non disponible.'}</p>
+          </div>
+          <div id="desc-ar" class="place-tab-pane" dir="rtl" lang="ar" style="font-size:1.05rem">
+            <p style="line-height:2;color:var(--dark)">${place.nameAr ? `<strong>${place.nameAr}</strong> — ` : ''}${place.description ? 'وصف مترجم سيكون متاحاً قريباً.' : 'الوصف غير متاح.'}</p>
+          </div>
+          <div id="desc-en" class="place-tab-pane">
+            <p style="font-size:0.95rem;line-height:1.75;color:var(--dark)">${place.nameEn ? `<strong>${place.nameEn}</strong> — ` : ''}Description in English coming soon.</p>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:16px;color:var(--dark)">Localisation</h2>
+        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.nameFr + ' ' + place.wilaya + ' Algérie')}" target="_blank" rel="noopener"
+           style="display:flex;align-items:center;gap:14px;padding:18px 20px;background:#f0faf4;border:1.5px solid var(--green);border-radius:14px;text-decoration:none;color:var(--dark);transition:background 150ms"
+           onmouseover="this.style.background='#d9f0e3'" onmouseout="this.style.background='#f0faf4'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#006233" stroke-width="2" width="36" height="36" style="flex-shrink:0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div>
+            <div style="font-weight:700;font-size:0.95rem;color:var(--green)">Ouvrir dans Google Maps</div>
+            <div style="font-size:0.8rem;color:var(--muted);margin-top:2px">${place.nameFr} · ${place.wilaya}</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" width="18" height="18" style="margin-left:auto;flex-shrink:0"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:8px;padding-left:4px">
+          ${place.latitude.toFixed(4)}° N, ${place.longitude.toFixed(4)}° E
+        </p>
+
+        <!-- Reviews -->
+        <h2 style="font-size:1.2rem;font-weight:800;margin:28px 0 16px;color:var(--dark)">Avis visiteurs</h2>
+        <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px;background:var(--light);border-radius:16px;padding:20px">
+          <div style="text-align:center">
+            <div style="font-size:3rem;font-weight:900;color:var(--dark);line-height:1">${place.googleRating}</div>
+            <div class="stars" style="justify-content:center;margin:6px 0">${renderStars(place.googleRating)}</div>
+            <div style="font-size:0.8rem;color:var(--muted)">${fmtReviews(place.googleReviewCount)} avis</div>
+          </div>
+          <div style="flex:1">
+            ${[5,4,3,2,1].map(n => {
+              const pct = Math.max(5, Math.round(100 - Math.abs(n - place.googleRating) * 25));
+              return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <span style="font-size:0.78rem;width:10px;color:var(--muted)">${n}</span>
+                <svg style="width:12px;height:12px;color:#F59E0B" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#F59E0B;border-radius:3px"></div></div>
+                <span style="font-size:0.75rem;color:var(--muted);width:30px">${pct}%</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+        ${mockReviews.map(r => `
+          <div class="review-card">
+            <div class="review-author">
+              <div class="review-avatar">${r.author.charAt(0)}</div>
+              <div>
+                <div class="review-name">${r.author}</div>
+                <div class="review-date">${r.date}</div>
+              </div>
+              <div class="stars" style="margin-left:auto">${renderStars(r.rating)}</div>
+            </div>
+            <p style="font-size:0.88rem;color:var(--dark);line-height:1.6">${r.text}</p>
+          </div>`).join('')}
+
+        <!-- Similar places -->
+        <h2 style="font-size:1.2rem;font-weight:800;margin:28px 0 16px;color:var(--dark)">Lieux similaires</h2>
+        <div class="similar-grid">
+          ${similar.map(p => renderPlaceCard(p)).join('')}
+        </div>
+      </div>
+    `;
+
+
+    // Gallery functions (imgs already defined above)
+
+    window.changeImg = (dir) => {
+      imgIdx = (imgIdx + dir + imgs.length) % imgs.length;
+      document.getElementById('gallery-img').src = imgs[imgIdx];
+      document.querySelectorAll('.gallery-dot').forEach((d,i) => d.classList.toggle('active', i===imgIdx));
+    };
+    window.setImg = (i) => { imgIdx = i; changeImg(0); imgIdx = i; document.getElementById('gallery-img').src = imgs[i]; document.querySelectorAll('.gallery-dot').forEach((d,j)=>d.classList.toggle('active',j===i)); };
+
+    // Tabs
+    window.switchTab = (e, tabId) => {
+      document.querySelectorAll('.place-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.place-tab-pane').forEach(t => t.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    };
+
+    // Fav toggle
+    window.toggleFavDetail = () => {
+      const added = toggleFavorite(place.id);
+      const btn = document.getElementById('fav-btn');
+      btn.className = `btn btn-${added?'red':'secondary'}`;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="${added?'currentColor':'none'}" stroke="currentColor" stroke-width="2" id="fav-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>${added?'Retirer des favoris':'Ajouter aux favoris'}`;
+      showToast(added ? 'Ajouté aux favoris' : 'Retiré des favoris', added ? 'success' : '');
+      updateFavBadge();
+    };
+
+    // Audio guide
+    let audioPlaying = false;
+    window.toggleAudio = () => {
+      if (audioPlaying) {
+        stopAudioGuide();
+        audioPlaying = false;
+        document.getElementById('audio-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><polygon points="5 3 19 12 5 21 5 3"/></svg> Lancer le guide';
+      } else {
+        startAudioGuide(place.description || place.nameFr + '. ' + place.wilaya + '.', 'fr-FR');
+        audioPlaying = true;
+        document.getElementById('audio-btn').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Arrêter';
+      }
+    };
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GoDZ – Découvrez l'Algérie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    /* ==============================
+       VIDEO HERO
+    ============================== */
+    .video-hero {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - var(--nav-h));
+      min-height: 500px;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+
+    .video-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* Gradient overlay en bas */
+    .video-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 85%;
+      background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.20) 75%, transparent 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Carte verticale à droite */
+    .hero-card {
+      position: absolute;
+      top: 50%;
+      right: 36px;
+      transform: translateY(-50%);
+      z-index: 3;
+      width: 300px;
+      background: rgba(10,10,10,0.55);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sc-title {
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    .sc-title span { color: #FFD700; }
+    .sc-desc {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .sc-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .sc-actions .btn {
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Séparateur horizontal */
+    .sc-divider {
+      height: 1px;
+      width: 100%;
+      background: rgba(255,255,255,0.15);
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Stats verticales */
+    .sc-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .sc-stat {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+    }
+    .sc-stat:last-child { border-bottom: none; padding-bottom: 0; }
+    .sc-stat .num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #FFD700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .sc-stat .lbl {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Flag */
+    .algerian-flag { width:20px; height:14px; display:inline-flex; overflow:hidden; border-radius:2px; vertical-align:middle; flex-shrink:0; }
+    .flag-green { flex:1; background:#006233; }
+    .flag-red   { flex:1; background:#D21034; }
+
+    .featured-section { background:#F8FAFC; }
+
+    /* Responsive — mobile : carte en bas pleine largeur */
+    @media (max-width: 768px) {
+      .hero-card {
+        top: auto;
+        right: auto;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 32px);
+        padding: 20px 20px;
+        border-radius: 16px;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sc-actions { flex-direction: row; }
+      .sc-actions .btn { width: auto; flex: 1; }
+      .sc-divider { margin-bottom: 14px; }
+      .sc-stats { flex-direction: row; gap: 0; }
+      .sc-stat {
+        flex: 1;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-bottom: none;
+        border-right: 1px solid rgba(255,255,255,0.10);
+        padding: 0;
+      }
+      .sc-stat:last-child { border-right: none; }
+      .sc-stat .num { font-size: 1.25rem; }
+      .video-hero::after { height: 65%; }
+    }
+    @media (max-width: 480px) {
+      .sc-desc { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" role="navigation" aria-label="Navigation principale">
+  <a href="index.html" class="navbar-brand">
+    <div class="navbar-logo" aria-hidden="true"><img src="assets/favicon.png" alt="GoDZ" style="width:100%;height:100%;object-fit:contain"/></div>
+  </a>
+  <ul class="navbar-links" role="list">
+    <li><a href="index.html" class="active">Accueil</a></li>
+    <li><a href="explorer.html">Explorer</a></li>
+    <li style="position:relative"><a href="favoris.html"><span class="fav-count" style="display:none;position:absolute;top:8px;right:-4px;background:var(--red);color:white;font-size:0.55rem;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center"></span>Favoris</a></li>
+    <li><a href="carte.html">Carte</a></li>
+    <li><a href="itineraire.html">Circuit</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
+    <button class="navbar-menu-btn" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- VIDEO HERO -->
+<section class="video-hero" style="margin-top:var(--nav-h)" aria-label="Accueil GoDZ">
+
+  <video class="video-bg" autoplay muted loop playsinline preload="auto">
+    <source src="assets/accueil.mp4" type="video/mp4"/>
+  </video>
+
+  <!-- Carte verticale droite -->
+  <div class="hero-card" role="region" aria-label="Présentation GoDZ">
+    <h1 class="sc-title">Découvrez<br/><span>l'Algérie</span> autrement.</h1>
+    <p class="sc-desc">Des plages méditerranéennes au Sahara, de la Kabylie aux villes impériales.</p>
+
+    <div class="sc-actions">
+      <a href="explorer.html" class="btn btn-lg" style="background:#FFD700;color:#111;font-weight:700;box-shadow:0 4px 20px rgba(255,215,0,0.35)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Explorer
+      </a>
+      <a href="itineraire.html" class="btn btn-lg" style="background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.35)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Circuit
+      </a>
+      <button onclick="openVisaModal()" class="btn btn-lg" style="background:rgba(255,215,0,0.18);color:#FFD700;border:1.5px solid rgba(255,215,0,0.4)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Visa
+      </button>
+    </div>
+
+    <div class="sc-divider"></div>
+
+    <div class="sc-stats">
+      <div class="sc-stat"><div class="num" id="stat-lieux">—</div><div class="lbl">Lieux</div></div>
+      <div class="sc-stat"><div class="num" id="stat-wilayas">—</div><div class="lbl">Wilayas</div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FEATURED PLACES -->
+<section id="featured" class="section featured-section" style="background:#FAFAFA">
+  <div class="container">
+    <div class="section-header">
+      <p class="eyebrow">Sélection</p>
+      <h2>À la Une</h2>
+      <p>Les destinations les plus emblématiques d'Algérie, soigneusement sélectionnées.</p>
+    </div>
+    <div class="places-grid" id="featured-grid"></div>
+    <div style="text-align:center;margin-top:32px">
+      <a href="explorer.html" class="btn btn-secondary btn-lg">
+        Voir tous les lieux
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- WILAYAS -->
+<section class="section" style="background:white">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+      <div>
+        <p style="font-size:0.8rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Destinations</p>
+        <h2 style="font-size:1.75rem">Wilayas</h2>
+      </div>
+      <a href="explorer.html" class="btn btn-ghost btn-sm" style="color:var(--green)">Voir toutes les wilayas →</a>
+    </div>
+    <div class="wilaya-grid" id="wilaya-grid"></div>
+  </div>
+</section>
+
+<!-- VISA SECTION -->
+<section id="visa" class="section" style="background:#fff">
+  <div class="container">
+    <div class="section-header">
+      <p class="eyebrow">Infos pratiques</p>
+      <h2>Visa &amp; Conditions d'entrée</h2>
+      <p>Tout ce qu'il faut savoir avant de préparer votre voyage en Algérie.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:40px">
+
+      <!-- Ressortissants algériens -->
+      <div style="border-radius:16px;border:1.5px solid var(--border);padding:28px;background:#fff;box-shadow:var(--shadow-2)">
+        <div style="width:48px;height:48px;background:rgba(0,98,51,0.10);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <svg style="width:24px;height:24px;color:var(--green)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--dark)">Ressortissants algériens</h3>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;margin-bottom:16px">Les citoyens algériens et les membres de la diaspora (carte de résidence, laissez-passer) entrent librement sur le territoire avec leur passeport ou titre de voyage.</p>
+        <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,98,51,0.10);color:var(--green);font-size:0.75rem;font-weight:700;padding:4px 12px;border-radius:20px">
+          <svg style="width:13px;height:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Entrée libre
+        </span>
+      </div>
+
+      <!-- Pays sans visa -->
+      <div style="border-radius:16px;border:1.5px solid var(--border);padding:28px;background:#fff;box-shadow:var(--shadow-2)">
+        <div style="width:48px;height:48px;background:rgba(14,165,233,0.10);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <svg style="width:24px;height:24px;color:#0EA5E9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--dark)">Pays exemptés de visa</h3>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;margin-bottom:14px">Les ressortissants de certains pays arabes et africains bénéficient d'une exemption de visa (Tunisie, Mauritanie, Mali, Niger…).</p>
+        <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:6px">
+          <li style="background:rgba(14,165,233,0.08);color:#0369a1;font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:20px">Tunisie</li>
+          <li style="background:rgba(14,165,233,0.08);color:#0369a1;font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:20px">Mauritanie</li>
+          <li style="background:rgba(14,165,233,0.08);color:#0369a1;font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:20px">Mali</li>
+          <li style="background:rgba(14,165,233,0.08);color:#0369a1;font-size:0.75rem;font-weight:600;padding:3px 10px;border-radius:20px">+ autres</li>
+        </ul>
+      </div>
+
+      <!-- Visa obligatoire -->
+      <div style="border-radius:16px;border:1.5px solid var(--border);padding:28px;background:#fff;box-shadow:var(--shadow-2)">
+        <div style="width:48px;height:48px;background:rgba(245,158,11,0.10);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+          <svg style="width:24px;height:24px;color:#D97706" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <h3 style="font-size:1rem;font-weight:800;margin-bottom:8px;color:var(--dark)">Visa obligatoire</h3>
+        <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;margin-bottom:16px">Les ressortissants de la plupart des pays européens, américains et asiatiques doivent obtenir un visa auprès d'une ambassade ou consulat algérien avant le départ. Délai : 2 à 4 semaines.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:0.82rem;color:var(--dark)">
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <svg style="width:14px;height:14px;color:var(--green);flex-shrink:0;margin-top:2px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Passeport valide 6 mois minimum
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <svg style="width:14px;height:14px;color:var(--green);flex-shrink:0;margin-top:2px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Formulaire de demande + photos
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <svg style="width:14px;height:14px;color:var(--green);flex-shrink:0;margin-top:2px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Réservation d'hôtel + billet aller-retour
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bannière ambassade -->
+    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="width:48px;height:48px;background:rgba(255,215,0,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg style="width:24px;height:24px;color:#FFD700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg>
+        </div>
+        <div>
+          <p style="font-size:0.9rem;font-weight:700;color:#fff;margin-bottom:4px">Ambassade &amp; Consulats d'Algérie</p>
+          <p style="font-size:0.82rem;color:rgba(255,255,255,0.6)">Consultez le site officiel du Ministère des Affaires Étrangères pour la liste complète des représentations et les formulaires à jour.</p>
+        </div>
+      </div>
+      <a href="https://www.mae.gov.dz" target="_blank" rel="noopener" class="btn btn-lg" style="background:#FFD700;color:#111;font-weight:700;white-space:nowrap;flex-shrink:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Site officiel MAE
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="section" style="background:linear-gradient(135deg,#003d1f,#006233)">
+  <div class="container" style="text-align:center;color:white">
+    <p style="font-size:0.8rem;font-weight:700;color:#FFD700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">Planifiez votre voyage</p>
+    <h2 style="font-size:2.5rem;font-weight:900;color:white;margin-bottom:16px">Créez votre circuit<br/>sur mesure</h2>
+    <p style="opacity:0.8;max-width:480px;margin:0 auto 32px;font-size:1.05rem">Notre outil génère automatiquement un programme jour par jour adapté à votre destination et durée de séjour.</p>
+    <a href="itineraire.html" class="btn btn-lg" style="background:#FFD700;color:#111;box-shadow:0 4px 24px rgba(255,215,0,0.35)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:20px;height:20px"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Générer mon circuit
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="background:var(--dark);color:white;padding:48px 0 24px">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div style="width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center">
+            <svg style="width:20px;height:20px;color:white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <span style="font-size:1.2rem;font-weight:800">Go<span style="color:#FFD700">DZ</span></span>
+        </div>
+        <p style="font-size:0.85rem;opacity:0.6;max-width:240px;line-height:1.6">Explorez l'Algérie autrement — votre guide de voyage complet pour les 58 wilayas.</p>
+      </div>
+      <div>
+        <p style="font-weight:700;margin-bottom:14px;font-size:0.9rem">Explorer</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+          <li><a href="explorer.html" style="opacity:0.6;font-size:0.85rem;hover:opacity:1;transition:opacity 150ms">Tous les lieux</a></li>
+          <li><a href="favoris.html" style="opacity:0.6;font-size:0.85rem">Mes favoris</a></li>
+          <li><a href="carte.html" style="opacity:0.6;font-size:0.85rem">Carte interactive</a></li>
+          <li><a href="itineraire.html" style="opacity:0.6;font-size:0.85rem">Circuits</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:700;margin-bottom:14px;font-size:0.9rem">Thèmes</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+          <li><a href="explorer.html?cat=monuments" style="opacity:0.6;font-size:0.85rem">Monuments</a></li>
+          <li><a href="explorer.html?cat=plages" style="opacity:0.6;font-size:0.85rem">Plages</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-weight:700;margin-bottom:14px;font-size:0.9rem">Infos pratiques</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px">
+          <li><a href="#visa" style="opacity:0.6;font-size:0.85rem">Visa & Entrée</a></li>
+          <li><a href="itineraire.html" style="opacity:0.6;font-size:0.85rem">Mes circuits</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <p style="font-size:0.8rem;opacity:0.5">© 2026 GoDZ. Explorez l'Algérie autrement.</p>
+      <p style="font-size:0.8rem;opacity:0.5">Données extraites de l'application mobile GoDZ (Ionic/Angular)</p>
+    </div>
+  </div>
+</footer>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" aria-label="Navigation mobile">
+  <div class="mobile-nav-items">
+    <a href="index.html" class="mobile-nav-item active">
+      <img src="assets/favicon.png" alt="GoDZ" style="width:22px;height:22px;object-fit:contain;border-radius:5px"/>
+      Accueil
+    </a>
+    <a href="explorer.html" class="mobile-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Explorer
+    </a>
+    <a href="carte.html" class="mobile-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      Carte
+    </a>
+    <a href="favoris.html" class="mobile-nav-item" style="position:relative">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="fav-count" style="display:none;position:absolute;top:2px;right:14px;background:var(--red);color:white;font-size:0.6rem;font-weight:700;width:16px;height:16px;border-radius:50%;align-items:center;justify-content:center"></span>
+      Favoris
+    </a>
+    <a href="itineraire.html" class="mobile-nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Circuit
+    </a>
+  </div>
+</nav>
+
+<!-- VISA MODAL STYLES -->
+<style>
+.vf-step-bar{display:flex;align-items:center;padding:16px 20px 0;gap:0;background:#003d1f}
+.vf-step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.vf-step-circle{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.2);color:white;font-size:0.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all 200ms;border:2px solid rgba(255,255,255,0.3);position:relative;z-index:1}
+.vf-step-item.done .vf-step-circle{background:#FFD700;color:#003d1f;border-color:#FFD700}
+.vf-step-item.active .vf-step-circle{background:white;color:#006233;border-color:white;box-shadow:0 0 0 3px rgba(255,255,255,0.3)}
+.vf-step-label{font-size:0.55rem;color:rgba(255,255,255,0.6);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap}
+.vf-step-item.active .vf-step-label{color:white}
+.vf-step-item.done .vf-step-label{color:rgba(255,255,255,0.8)}
+.vf-connector{flex:1;height:2px;background:rgba(255,255,255,0.2);margin-bottom:22px;transition:background 200ms}
+.vf-connector.done{background:#FFD700}
+.vf-panel{display:none;padding:20px 24px}
+.vf-panel.active{display:block}
+.vf-panel-hero{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.vf-panel-icon{font-size:1.8rem;line-height:1}
+.vf-panel-title{font-size:1rem;font-weight:800;color:var(--dark);margin-bottom:2px}
+.vf-panel-sub{font-size:0.78rem;color:var(--muted)}
+.vf-field{margin-bottom:14px}
+.vf-label{display:block;font-size:0.75rem;font-weight:700;color:var(--dark);margin-bottom:5px}
+.vf-req{color:var(--red)}
+.vf-input{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:0.875rem;background:white;color:var(--dark);transition:border-color 200ms,box-shadow 200ms;outline:none}
+.vf-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,98,51,0.10)}
+.vf-input.error{border-color:var(--red)}
+.vf-error{font-size:0.72rem;color:var(--red);margin-top:3px;display:block}
+.vf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.vf-row3{display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px}
+.vf-full{grid-column:1/-1}
+.vf-toggle-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.vf-toggle{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:white;font-family:inherit;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 150ms;color:var(--muted)}
+.vf-toggle:hover{border-color:var(--green);color:var(--green)}
+.vf-toggle.active{background:var(--green);color:white;border-color:var(--green)}
+.vf-section-title{font-size:0.72rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.08em;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid #E5E7EB}
+.vf-child-block{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.vf-child-badge{display:inline-block;font-size:0.68rem;font-weight:700;background:rgba(0,98,51,0.10);color:var(--green);padding:2px 10px;border-radius:20px;margin-bottom:10px}
+.vf-info-box{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:10px 12px;font-size:0.78rem;color:#166534;display:flex;gap:8px;align-items:flex-start;margin:8px 0}
+.vf-alert-box{background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:10px 12px;font-size:0.78rem;color:#9A3412;display:flex;gap:8px;align-items:flex-start;margin:8px 0}
+.vf-privacy{background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:0.75rem;color:var(--muted);display:flex;gap:8px;align-items:flex-start;margin-bottom:16px}
+.vf-nav{display:flex;gap:10px;justify-content:space-between;padding:16px 24px;border-top:1px solid var(--border);background:#FAFAFA}
+.vf-success-panel{padding:24px;text-align:center}
+.vf-share-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.vf-share-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:white;cursor:pointer;font-family:inherit;font-size:0.75rem;font-weight:600;color:var(--dark);transition:all 150ms}
+.vf-share-btn:hover{border-color:var(--green);background:rgba(0,98,51,0.04)}
+.vf-share-btn .icon{font-size:1.5rem}
+@media(max-width:480px){.vf-row,.vf-row3{grid-template-columns:1fr}.vf-step-label{display:none}}
+.vf-ac-wrap{position:relative}
+.vf-ac-dropdown{display:none;position:absolute;top:calc(100% + 1px);left:0;right:0;background:white;border:1.5px solid var(--green);border-top:none;border-radius:0 0 10px 10px;z-index:1002;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.vf-ac-item{padding:9px 12px;cursor:pointer;font-size:0.82rem;color:var(--dark);border-bottom:1px solid var(--border);line-height:1.4}
+.vf-ac-item:last-child{border-bottom:none}
+.vf-ac-item:hover{background:rgba(0,98,51,0.06);color:var(--green)}
+</style>
+
+<!-- VISA MODAL -->
+<div id="visa-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);overflow-y:auto;padding:20px 16px">
+  <div style="max-width:640px;margin:0 auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.35)">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#003d1f,#006233);padding:18px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img src="assets/favicon.png" alt="GoDZ" style="width:32px;height:32px;border-radius:8px"/>
+        <div>
+          <h2 style="font-size:1rem;font-weight:800;color:white;margin:0">Demande de visa Algérie</h2>
+          <p style="font-size:0.7rem;color:rgba(255,255,255,0.6);margin:0" id="vf-step-subtitle">Étape 1 sur 7</p>
+        </div>
+      </div>
+      <button onclick="closeVisaModal()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <!-- Stepper -->
+    <div class="vf-step-bar" id="vf-stepper"></div>
+
+    <!-- Privacy notice (always visible) -->
+    <div style="padding:12px 24px 0">
+      <div class="vf-privacy">🔒 <span>Vos données restent sur votre appareil et ne sont jamais transmises à un serveur.</span></div>
+    </div>
+
+    <!-- Step 0 : Identité -->
+    <div class="vf-panel active" id="vf-p0">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">👤</span><div><div class="vf-panel-title">Identité</div><div class="vf-panel-sub">État civil et informations personnelles</div></div></div>
+      <div class="vf-row">
+        <div class="vf-field"><label class="vf-label">Nom de famille <span class="vf-req">*</span></label><input class="vf-input" id="vf_nom" placeholder="DUPONT" autocomplete="family-name"/><span class="vf-error" id="e_nom"></span></div>
+        <div class="vf-field"><label class="vf-label">Prénom(s) <span class="vf-req">*</span></label><input class="vf-input" id="vf_prenom" placeholder="Jean" autocomplete="given-name"/><span class="vf-error" id="e_prenom"></span></div>
+        <div class="vf-field"><label class="vf-label">Nom de jeune fille</label><input class="vf-input" id="vf_nom_jfille" placeholder="—"/></div>
+        <div class="vf-field"><label class="vf-label">Pseudonyme / surnom</label><input class="vf-input" id="vf_pseudo" placeholder="—"/></div>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">Sexe <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('sexe','M',this)">Masculin</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('sexe','F',this)">Féminin</button>
+        </div>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">Date de naissance <span class="vf-req">*</span></label>
+        <div class="vf-row3"><input class="vf-input" id="vf_jour_nais" placeholder="JJ" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_mois_nais" placeholder="MM" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_annee_nais" placeholder="AAAA" maxlength="4" inputmode="numeric"/></div>
+        <span class="vf-error" id="e_date_nais"></span>
+      </div>
+      <div class="vf-row">
+        <div class="vf-field"><label class="vf-label">Lieu de naissance <span class="vf-req">*</span></label><input class="vf-input" id="vf_lieu_nais" placeholder="Paris"/><span class="vf-error" id="e_lieu_nais"></span></div>
+        <div class="vf-field"><label class="vf-label">Pays de naissance <span class="vf-req">*</span></label><input class="vf-input" id="vf_pays_nais" placeholder="France"/><span class="vf-error" id="e_pays_nais"></span></div>
+      </div>
+      <div class="vf-row" style="margin-top:4px">
+        <div class="vf-field"><label class="vf-label">Nom du père</label><input class="vf-input" id="vf_nom_pere" placeholder="Nom du père"/></div>
+        <div class="vf-field"><label class="vf-label">Nom de la mère</label><input class="vf-input" id="vf_nom_mere" placeholder="Nom de la mère"/></div>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">État civil <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('etat_civil','celibataire',this)">Célibataire</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('etat_civil','marie',this)">Marié(e)</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('etat_civil','divorce',this)">Divorcé(e)</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('etat_civil','veuf',this)">Veuf/Veuve</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 : Résidence -->
+    <div class="vf-panel" id="vf-p1">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">🌍</span><div><div class="vf-panel-title">Résidence</div><div class="vf-panel-sub">Nationalité et coordonnées personnelles</div></div></div>
+      <div class="vf-row">
+        <div class="vf-field"><label class="vf-label">Nationalité d'origine <span class="vf-req">*</span></label><input class="vf-input" id="vf_nationalite_origin" placeholder="Française"/><span class="vf-error" id="e_nat_origin"></span></div>
+        <div class="vf-field"><label class="vf-label">Nationalité actuelle <span class="vf-req">*</span></label><input class="vf-input" id="vf_nationalite_actu" placeholder="Française"/><span class="vf-error" id="e_nat_actu"></span></div>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">Pays de résidence <span class="vf-req">*</span></label>
+        <select class="vf-input" id="vf_pays_residence">
+          <option value="fr">France</option><option value="dz">Algérie</option><option value="ma">Maroc</option><option value="tn">Tunisie</option>
+          <option value="be">Belgique</option><option value="ch">Suisse</option><option value="ca">Canada</option><option value="es">Espagne</option>
+          <option value="it">Italie</option><option value="de">Allemagne</option><option value="nl">Pays-Bas</option><option value="gb">Royaume-Uni</option>
+          <option value="us">États-Unis</option><option value="pt">Portugal</option><option value="tr">Turquie</option><option value="ly">Libye</option>
+          <option value="mr">Mauritanie</option><option value="other">Autre</option>
+        </select>
+      </div>
+      <div class="vf-field"><label class="vf-label">Adresse personnelle <span class="vf-req">*</span></label><input class="vf-input" id="vf_adress_perso" placeholder="12 rue de la Paix, 75001 Paris" autocomplete="street-address"/><span class="vf-error" id="e_adress_perso"></span></div>
+      <div class="vf-field"><label class="vf-label">Téléphone <span class="vf-req">*</span></label><input class="vf-input" id="vf_tel_perso" placeholder="+33 6 12 34 56 78" type="tel" autocomplete="tel"/><span class="vf-error" id="e_tel_perso"></span></div>
+    </div>
+
+    <!-- Step 2 : Famille -->
+    <div class="vf-panel" id="vf-p2">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">👨‍👩‍👧</span><div><div class="vf-panel-title">Famille</div><div class="vf-panel-sub">Conjoint et enfants mineurs accompagnants</div></div></div>
+      <div class="vf-section-title">Conjoint(e)</div>
+      <div class="vf-row">
+        <div class="vf-field"><label class="vf-label">Prénom du conjoint</label><input class="vf-input" id="vf_prenom_conj" placeholder="Marie"/></div>
+        <div class="vf-field"><label class="vf-label">Nom du conjoint</label><input class="vf-input" id="vf_nom_conj" placeholder="MARTIN"/></div>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">Date de naissance du conjoint</label>
+        <div class="vf-row3"><input class="vf-input" id="vf_jour_nais_conj" placeholder="JJ" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_mois_nais_conj" placeholder="MM" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_annee_nais_conj" placeholder="AAAA" maxlength="4" inputmode="numeric"/></div>
+        <span class="vf-error" id="e_date_conj"></span>
+      </div>
+      <div class="vf-row">
+        <div class="vf-field"><label class="vf-label">Pays de naissance</label><input class="vf-input" id="vf_pays_nais_conj" placeholder="France"/></div>
+        <div class="vf-field"><label class="vf-label">Nationalité</label><input class="vf-input" id="vf_nationalite_conj" placeholder="Française"/></div>
+      </div>
+      <div class="vf-section-title">Enfants mineurs</div>
+      <div class="vf-child-block"><div class="vf-child-badge">Enfant 1</div>
+        <div class="vf-field"><label class="vf-label">Nom complet</label><input class="vf-input" id="vf_fils_nom1" placeholder="Nom et prénom"/></div>
+        <div class="vf-row"><div class="vf-field"><label class="vf-label">Date de naissance</label><input class="vf-input" id="vf_fils_dat1" placeholder="JJ/MM/AAAA"/><span class="vf-error" id="e_fils1"></span></div><div class="vf-field"><label class="vf-label">Lieu de naissance</label><input class="vf-input" id="vf_fils_lieu1" placeholder="Ville"/></div></div>
+        <div class="vf-field"><label class="vf-label">Nationalité</label><input class="vf-input" id="vf_fils_nat1" placeholder="Française"/></div>
+      </div>
+      <div class="vf-child-block"><div class="vf-child-badge">Enfant 2</div>
+        <div class="vf-field"><label class="vf-label">Nom complet</label><input class="vf-input" id="vf_fils_nom2" placeholder="Nom et prénom"/></div>
+        <div class="vf-row"><div class="vf-field"><label class="vf-label">Date de naissance</label><input class="vf-input" id="vf_fils_dat2" placeholder="JJ/MM/AAAA"/><span class="vf-error" id="e_fils2"></span></div><div class="vf-field"><label class="vf-label">Lieu de naissance</label><input class="vf-input" id="vf_fils_lieu2" placeholder="Ville"/></div></div>
+        <div class="vf-field"><label class="vf-label">Nationalité</label><input class="vf-input" id="vf_fils_nat2" placeholder="Française"/></div>
+      </div>
+      <div class="vf-child-block"><div class="vf-child-badge">Enfant 3</div>
+        <div class="vf-field"><label class="vf-label">Nom complet</label><input class="vf-input" id="vf_fils_nom3" placeholder="Nom et prénom"/></div>
+        <div class="vf-row"><div class="vf-field"><label class="vf-label">Date de naissance</label><input class="vf-input" id="vf_fils_dat3" placeholder="JJ/MM/AAAA"/><span class="vf-error" id="e_fils3"></span></div><div class="vf-field"><label class="vf-label">Lieu de naissance</label><input class="vf-input" id="vf_fils_lieu3" placeholder="Ville"/></div></div>
+        <div class="vf-field"><label class="vf-label">Nationalité</label><input class="vf-input" id="vf_fils_nat3" placeholder="Française"/></div>
+      </div>
+    </div>
+
+    <!-- Step 3 : Passeport -->
+    <div class="vf-panel" id="vf-p3">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">🛂</span><div><div class="vf-panel-title">Passeport</div><div class="vf-panel-sub">Informations du document de voyage</div></div></div>
+      <div class="vf-field">
+        <label class="vf-label">Type de document <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('type_doc','ordinaire',this)">Ordinaire</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('type_doc','diplomatique',this)">Service / Diplomatique</button>
+        </div>
+      </div>
+      <div class="vf-field"><label class="vf-label">Numéro de passeport <span class="vf-req">*</span></label><input class="vf-input" id="vf_num_pass" placeholder="AB1234567" maxlength="9" style="text-transform:uppercase;letter-spacing:2px"/><span class="vf-error" id="e_num_pass"></span></div>
+      <div class="vf-field"><label class="vf-label">Délivré par <span class="vf-req">*</span></label><input class="vf-input" id="vf_deliv_par" placeholder="Préfecture de Paris"/><span class="vf-error" id="e_deliv_par"></span></div>
+      <div class="vf-field">
+        <label class="vf-label">Date de délivrance <span class="vf-req">*</span></label>
+        <div class="vf-row3"><input class="vf-input" id="vf_jour_deliv" placeholder="JJ" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_mois_deliv" placeholder="MM" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_annee_deliv" placeholder="AAAA" maxlength="4" inputmode="numeric"/></div>
+        <span class="vf-error" id="e_date_deliv"></span>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">Date d'expiration <span class="vf-req">*</span></label>
+        <div class="vf-row3"><input class="vf-input" id="vf_jour_exp" placeholder="JJ" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_mois_exp" placeholder="MM" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_annee_exp" placeholder="AAAA" maxlength="4" inputmode="numeric"/></div>
+        <span class="vf-error" id="e_date_exp"></span>
+      </div>
+      <div id="vf-passport-alerts"></div>
+      <div class="vf-info-box">ℹ️ <span>Le passeport doit être valide au moins 6 mois à partir de la date d'entrée prévue en Algérie.</span></div>
+    </div>
+
+    <!-- Step 4 : Profession -->
+    <div class="vf-panel" id="vf-p4">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">💼</span><div><div class="vf-panel-title">Profession</div><div class="vf-panel-sub">Activité professionnelle actuelle</div></div></div>
+      <div class="vf-field"><label class="vf-label">Profession <span class="vf-req">*</span></label><input class="vf-input" id="vf_prof" placeholder="Ingénieur, Médecin, Étudiant…"/><span class="vf-error" id="e_prof"></span></div>
+      <div class="vf-field"><label class="vf-label">Employeur / Établissement</label><input class="vf-input" id="vf_employeur" placeholder="Entreprise ou école"/></div>
+      <div class="vf-field"><label class="vf-label">Adresse professionnelle</label><input class="vf-input" id="vf_adress_prof" placeholder="Adresse de l'employeur"/></div>
+      <div class="vf-field"><label class="vf-label">Téléphone professionnel</label><input class="vf-input" id="vf_tel_prof" placeholder="+33 1 23 45 67 89" type="tel"/></div>
+    </div>
+
+    <!-- Step 5 : Voyage -->
+    <div class="vf-panel" id="vf-p5">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">✈️</span><div><div class="vf-panel-title">Voyage</div><div class="vf-panel-sub">Type de visa et informations du séjour</div></div></div>
+      <div class="vf-field">
+        <label class="vf-label">Type de visa <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('type_visa','court',this);vfToggleTransit(false)">Court séjour</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('type_visa','long',this);vfToggleTransit(false)">Long séjour</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('type_visa','transit',this);vfToggleTransit(true)">Transit</button>
+        </div>
+      </div>
+      <div id="vf-transit-block" style="display:none">
+        <div class="vf-field"><label class="vf-label">Destination finale <span class="vf-req">*</span></label><input class="vf-input" id="vf_destin_final" placeholder="Ex : Tunisie, Maroc…"/><span class="vf-error" id="e_destin_final"></span></div>
+        <div class="vf-field">
+          <label class="vf-label">Êtes-vous titulaire d'un visa pour votre destination finale ? <span class="vf-req">*</span></label>
+          <div class="vf-toggle-group">
+            <button type="button" class="vf-toggle" onclick="vfToggle('transit_visa_dest','oui',this)">Oui</button>
+            <button type="button" class="vf-toggle" onclick="vfToggle('transit_visa_dest','non',this)">Non</button>
+          </div>
+          <span class="vf-error" id="e_transit_visa"></span>
+        </div>
+      </div>
+      <div class="vf-field"><label class="vf-label">Visa sollicité <span class="vf-req">*</span></label><input class="vf-input" id="vf_visa_sollicite" placeholder="Ex : Tourisme — Algérie"/><span class="vf-error" id="e_visa_sollicite"></span></div>
+      <div class="vf-field">
+        <label class="vf-label">Date d'entrée prévue <span class="vf-req">*</span></label>
+        <div class="vf-row3"><input class="vf-input" id="vf_jour_entree" placeholder="JJ" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_mois_entree" placeholder="MM" maxlength="2" inputmode="numeric"/><input class="vf-input" id="vf_annee_entree" placeholder="AAAA" maxlength="4" inputmode="numeric"/></div>
+        <span class="vf-error" id="e_date_entree"></span>
+      </div>
+      <div id="vf-travel-alerts"></div>
+      <div class="vf-field">
+        <label class="vf-label">Durée du séjour <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle" onclick="vfToggle('duree_sejour','30',this)">30 jours</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('duree_sejour','90',this)">90 jours</button>
+        </div>
+        <span class="vf-error" id="e_duree"></span>
+      </div>
+      <div class="vf-field">
+        <label class="vf-label">Nombre d'entrées <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('nbre_entrees','une',this)">Simple</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('nbre_entrees','double',this)">Double</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('nbre_entrees','multiple',this)">Multiple</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 : Séjour -->
+    <div class="vf-panel" id="vf-p6">
+      <div class="vf-panel-hero"><span class="vf-panel-icon">🏨</span><div><div class="vf-panel-title">Séjour</div><div class="vf-panel-sub">Adresse en Algérie et historique des séjours</div></div></div>
+      <div class="vf-field"><label class="vf-label">Adresse de séjour en Algérie <span class="vf-req">*</span></label><input class="vf-input" id="vf_adress_sejour" placeholder="Hôtel, résidence ou chez un proche"/><span class="vf-error" id="e_adress_sejour"></span></div>
+      <div class="vf-field"><label class="vf-label">2ème adresse (facultatif)</label><input class="vf-input" id="vf_adres_sej2" placeholder="Autre hébergement prévu"/></div>
+      <div class="vf-section-title">Précédents séjours en Algérie</div>
+      <div class="vf-field">
+        <label class="vf-label">Avez-vous déjà séjourné en Algérie ? <span class="vf-req">*</span></label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('precedent_sejour','non',this);vfTogglePrecSejour(false)">Non</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('precedent_sejour','oui',this);vfTogglePrecSejour(true)">Oui</button>
+        </div>
+      </div>
+      <div id="vf-prec-sejour-block" style="display:none">
+        <div class="vf-field"><label class="vf-label">Dernière adresse en Algérie</label><input class="vf-input" id="vf_adresse_prec_sejour" placeholder="Adresse lors du dernier séjour"/></div>
+        <div class="vf-row">
+          <div class="vf-field"><label class="vf-label">Date du dernier séjour</label><input class="vf-input" id="vf_date_dernier_sejour" placeholder="JJ/MM/AAAA"/></div>
+          <div class="vf-field"><label class="vf-label">Nombre de séjours</label><input class="vf-input" id="vf_nbre_sejours_prec" placeholder="1" type="number" min="1"/></div>
+        </div>
+      </div>
+      <div class="vf-section-title">iVisa Algérie</div>
+      <div class="vf-field">
+        <label class="vf-label">Avez-vous déjà obtenu un iVisa pour l'Algérie ?</label>
+        <div class="vf-toggle-group">
+          <button type="button" class="vf-toggle active" onclick="vfToggle('ivisa_obtenu','non',this);vfToggleIvisa(false)">Non</button>
+          <button type="button" class="vf-toggle" onclick="vfToggle('ivisa_obtenu','oui',this);vfToggleIvisa(true)">Oui</button>
+        </div>
+      </div>
+      <div id="vf-ivisa-block" style="display:none">
+        <div class="vf-row">
+          <div class="vf-field"><label class="vf-label">Combien de fois</label><input class="vf-input" id="vf_ivisa_nb" placeholder="1" type="number" min="1"/></div>
+          <div class="vf-field"><label class="vf-label">Date du dernier iVisa</label><input class="vf-input" id="vf_ivisa_date" placeholder="JJ/MM/AAAA"/></div>
+        </div>
+        <div class="vf-field"><label class="vf-label">Durée du séjour accordée</label><input class="vf-input" id="vf_ivisa_duree" placeholder="Ex : 30 jours"/></div>
+      </div>
+    </div>
+
+    <!-- Navigation footer -->
+    <div class="vf-nav">
+      <button type="button" class="btn btn-secondary" onclick="vfBack()" id="vf-btn-back">Annuler</button>
+      <button type="button" class="btn btn-primary" onclick="vfNext()" id="vf-btn-next">
+        Suivant
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // ── Visa form state ──────────────────────────────────────────────
+  let vfStep = 0;
+  const VF_STEPS = [
+    {label:'Identité',icon:'👤'},{label:'Résidence',icon:'🌍'},{label:'Famille',icon:'👨‍👩‍👧'},
+    {label:'Passeport',icon:'🛂'},{label:'Profession',icon:'💼'},{label:'Voyage',icon:'✈️'},{label:'Séjour',icon:'🏨'}
+  ];
+  const vfData = {
+    sexe:'M', etat_civil:'celibataire', type_doc:'ordinaire',
+    type_visa:'court', nbre_entrees:'une', duree_sejour:'',
+    transit_visa_dest:'', precedent_sejour:'non', ivisa_obtenu:'non'
+  };
+  let vfGenerating = false;
+
+  function vfToggle(key, value, btn) {
+    vfData[key] = value;
+    if (btn) {
+      const group = btn.closest('.vf-toggle-group');
+      if (group) group.querySelectorAll('.vf-toggle').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+  }
+  function vfToggleTransit(show) {
+    document.getElementById('vf-transit-block').style.display = show ? 'block' : 'none';
+  }
+  function vfTogglePrecSejour(show) {
+    document.getElementById('vf-prec-sejour-block').style.display = show ? 'block' : 'none';
+  }
+  function vfToggleIvisa(show) {
+    document.getElementById('vf-ivisa-block').style.display = show ? 'block' : 'none';
+  }
+
+  function fmtAddr(item) {
+    const a = item.address || {};
+    const num  = a.house_number || '';
+    const road = a.road || a.pedestrian || a.footway || a.path || '';
+    const post = a.postcode || '';
+    const city = a.city || a.town || a.village || a.municipality || a.suburb || '';
+    let line = num && road ? `${num} ${road}` : road || item.display_name.split(',')[0];
+    const locale = [post, city].filter(Boolean).join(' ');
+    if (locale) line += `, ${locale}`;
+    return line;
+  }
+
+  function setupAddressAutocomplete(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input || input._acSetup) return;
+    input._acSetup = true;
+    input.setAttribute('autocomplete', 'off');
+    const field = input.parentNode;
+    const wrap = document.createElement('div');
+    wrap.className = 'vf-ac-wrap';
+    field.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const dropdown = document.createElement('div');
+    dropdown.className = 'vf-ac-dropdown';
+    wrap.appendChild(dropdown);
+    let timer;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 2) { dropdown.style.display = 'none'; return; }
+      timer = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=4&addressdetails=1&accept-language=fr`);
+          const data = await res.json();
+          if (!data.length) { dropdown.style.display = 'none'; return; }
+          dropdown.innerHTML = '';
+          data.forEach(item => {
+            const label = fmtAddr(item);
+            const div = document.createElement('div');
+            div.className = 'vf-ac-item';
+            div.textContent = label;
+            div.addEventListener('mousedown', e => {
+              e.preventDefault();
+              input.value = label;
+              dropdown.style.display = 'none';
+            });
+            dropdown.appendChild(div);
+          });
+          dropdown.style.display = 'block';
+        } catch { dropdown.style.display = 'none'; }
+      }, 150);
+    });
+    input.addEventListener('blur', () => setTimeout(() => { dropdown.style.display = 'none'; }, 200));
+  }
+
+  function vfBuildStepper() {
+    const bar = document.getElementById('vf-stepper');
+    bar.innerHTML = VF_STEPS.map((s, i) => {
+      const done = i < vfStep, active = i === vfStep;
+      const circleContent = done ? '✓' : (i + 1);
+      const connector = i < VF_STEPS.length - 1
+        ? `<div class="vf-connector${i < vfStep ? ' done' : ''}"></div>` : '';
+      return `<div class="vf-step-item${done?' done':active?' active':''}">
+        <div class="vf-step-circle">${circleContent}</div>
+        <span class="vf-step-label">${s.label}</span>
+      </div>${connector}`;
+    }).join('');
+    document.getElementById('vf-step-subtitle').textContent = `Étape ${vfStep + 1} sur ${VF_STEPS.length}`;
+    document.getElementById('vf-btn-back').textContent = vfStep === 0 ? 'Annuler' : '← Retour';
+    const nextBtn = document.getElementById('vf-btn-next');
+    if (vfStep === VF_STEPS.length - 1) {
+      nextBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Générer le PDF`;
+    } else {
+      nextBtn.innerHTML = `Suivant <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+    }
+  }
+
+  function vfShowStep(n) {
+    document.querySelectorAll('.vf-panel').forEach((p, i) => p.classList.toggle('active', i === n));
+    vfStep = n;
+    vfBuildStepper();
+    document.getElementById('visa-modal').scrollTop = 0;
+  }
+
+  function vfGetVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+  function vfSetErr(id, msg) {
+    const el = document.getElementById('e_' + id);
+    if (el) { el.textContent = msg; }
+    const input = document.getElementById('vf_' + id) || document.getElementById('vf_' + id.replace('e_',''));
+    if (input) input.classList.toggle('error', !!msg);
+  }
+  function vfClearErrors() {
+    document.querySelectorAll('.vf-error').forEach(e => e.textContent = '');
+    document.querySelectorAll('.vf-input').forEach(i => i.classList.remove('error'));
+  }
+
+  function vfParseDate(j, m, a) {
+    const day=parseInt(j,10),month=parseInt(m,10),year=parseInt(a,10);
+    if(!day||!month||!year||year<1900||year>2100||month<1||month>12||day<1||day>31) return null;
+    const d=new Date(year,month-1,day);
+    return d.getMonth()===month-1?d:null;
+  }
+  function vfToday() { const d=new Date();d.setHours(0,0,0,0);return d; }
+  function vfAddMonths(date,n){ const d=new Date(date);d.setMonth(d.getMonth()+n);return d; }
+  function vfAddYears(date,n){ const d=new Date(date);d.setFullYear(d.getFullYear()+n);return d; }
+  function vfFmtDate(d){ return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
+
+  function vfValidate(step) {
+    vfClearErrors();
+    let ok = true;
+    const err = (id, msg) => { vfSetErr(id, msg); ok = false; };
+
+    if (step === 0) {
+      if (!vfGetVal('vf_nom')) err('nom', 'Champ obligatoire.');
+      if (!vfGetVal('vf_prenom')) err('prenom', 'Champ obligatoire.');
+      if (!vfGetVal('vf_lieu_nais')) err('lieu_nais', 'Champ obligatoire.');
+      if (!vfGetVal('vf_pays_nais')) err('pays_nais', 'Champ obligatoire.');
+      const nais = vfParseDate(vfGetVal('vf_jour_nais'), vfGetVal('vf_mois_nais'), vfGetVal('vf_annee_nais'));
+      if (!nais) err('date_nais', 'Date invalide — format : JJ MM AAAA.');
+      else if (nais >= vfToday()) err('date_nais', 'La date de naissance doit être dans le passé.');
+    }
+    if (step === 1) {
+      if (!vfGetVal('vf_nationalite_origin')) err('nat_origin', 'Champ obligatoire.');
+      if (!vfGetVal('vf_nationalite_actu')) err('nat_actu', 'Champ obligatoire.');
+      if (!vfGetVal('vf_adress_perso')) err('adress_perso', 'Champ obligatoire.');
+      if (!vfGetVal('vf_tel_perso')) err('tel_perso', 'Champ obligatoire.');
+    }
+    if (step === 3) {
+      const num = vfGetVal('vf_num_pass');
+      if (!num) err('num_pass', 'Champ obligatoire.');
+      else if (!/^[A-Z0-9]{6,9}$/i.test(num)) err('num_pass', 'Format invalide (ex. AB1234567).');
+      if (!vfGetVal('vf_deliv_par')) err('deliv_par', 'Champ obligatoire.');
+      const deliv = vfParseDate(vfGetVal('vf_jour_deliv'), vfGetVal('vf_mois_deliv'), vfGetVal('vf_annee_deliv'));
+      if (!deliv) err('date_deliv', 'Date invalide — JJ MM AAAA.');
+      else if (deliv > vfToday()) err('date_deliv', 'La date de délivrance ne peut pas être dans le futur.');
+      const exp = vfParseDate(vfGetVal('vf_jour_exp'), vfGetVal('vf_mois_exp'), vfGetVal('vf_annee_exp'));
+      if (!exp) err('date_exp', 'Date invalide — JJ MM AAAA.');
+      else if (exp <= vfToday()) err('date_exp', 'Passeport expiré.');
+      else {
+        const min6 = vfAddMonths(vfToday(), 6);
+        if (exp < min6) err('date_exp', `Le passeport doit être valide jusqu'au ${vfFmtDate(min6)} minimum.`);
+        else if (deliv && exp > vfAddYears(deliv, 10)) err('date_exp', `La validité d'un passeport ne peut pas dépasser 10 ans — vérifiez la date d'expiration.`);
+      }
+    }
+    if (step === 4) {
+      if (!vfGetVal('vf_prof')) err('prof', 'Champ obligatoire.');
+    }
+    if (step === 5) {
+      if (vfData.type_visa === 'transit' && !vfGetVal('vf_destin_final')) err('destin_final', 'Champ obligatoire pour un transit.');
+      if (vfData.type_visa === 'transit' && !vfData.transit_visa_dest) err('transit_visa', 'Veuillez répondre.');
+      if (!vfGetVal('vf_visa_sollicite')) err('visa_sollicite', 'Champ obligatoire.');
+      if (!vfData.duree_sejour) err('duree', 'Choisissez une durée.');
+      const entree = vfParseDate(vfGetVal('vf_jour_entree'), vfGetVal('vf_mois_entree'), vfGetVal('vf_annee_entree'));
+      if (!entree) err('date_entree', 'Date invalide — JJ MM AAAA.');
+      else if (entree <= vfToday()) err('date_entree', 'La date d\'entrée doit être dans le futur.');
+      // Check travel alerts
+      if (!ok) return false;
+      const exp = vfParseDate(vfGetVal('vf_jour_exp'), vfGetVal('vf_mois_exp'), vfGetVal('vf_annee_exp'));
+      if (entree && exp) {
+        const minValid = vfAddMonths(entree, 6);
+        if (exp < minValid) {
+          document.getElementById('vf-travel-alerts').innerHTML =
+            `<div class="vf-alert-box">⚠️ <span>Passeport insuffisant : votre passeport expire le <strong>${vfFmtDate(exp)}</strong>, mais doit rester valide 6 mois après l'entrée, soit jusqu'au <strong>${vfFmtDate(minValid)}</strong>.</span></div>`;
+          ok = false;
+        }
+      } else if (entree && !exp) {
+        document.getElementById('vf-travel-alerts').innerHTML =
+          `<div class="vf-alert-box">⚠️ <span>Renseignez la date d'expiration du passeport (étape Passeport) pour vérifier la compatibilité avec votre date d'entrée.</span></div>`;
+        ok = false;
+      }
+    }
+    if (step === 6) {
+      if (!vfGetVal('vf_adress_sejour')) err('adress_sejour', 'Champ obligatoire.');
+    }
+    return ok;
+  }
+
+  function vfUpdatePassportAlerts() {
+    const deliv = vfParseDate(vfGetVal('vf_jour_deliv'), vfGetVal('vf_mois_deliv'), vfGetVal('vf_annee_deliv'));
+    const exp = vfParseDate(vfGetVal('vf_jour_exp'), vfGetVal('vf_mois_exp'), vfGetVal('vf_annee_exp'));
+    const alerts = [];
+    if (deliv && deliv > vfToday()) alerts.push('La date de délivrance ne peut pas être dans le futur.');
+    if (exp && exp <= vfToday()) alerts.push('Votre passeport est expiré.');
+    else if (exp && exp < vfAddMonths(vfToday(), 6)) alerts.push(`Passeport insuffisant : doit être valide jusqu'au ${vfFmtDate(vfAddMonths(vfToday(),6))} minimum.`);
+    else if (deliv && exp && exp > vfAddYears(deliv, 10)) alerts.push(`La validité d'un passeport ne peut pas dépasser 10 ans — vérifiez la date d'expiration.`);
+    const box = document.getElementById('vf-passport-alerts');
+    if (box) box.innerHTML = alerts.map(a => `<div class="vf-alert-box">⚠️ <span>${a}</span></div>`).join('');
+  }
+
+  function vfNext() {
+    if (vfGenerating) return;
+    document.getElementById('vf-travel-alerts').innerHTML = '';
+    if (!vfValidate(vfStep)) return;
+    if (vfStep === VF_STEPS.length - 1) { vfGenerate(); return; }
+    vfShowStep(vfStep + 1);
+    if (vfStep === 3) {
+      ['vf_jour_deliv','vf_mois_deliv','vf_annee_deliv','vf_jour_exp','vf_mois_exp','vf_annee_exp']
+        .forEach(id => { const el=document.getElementById(id); if(el) el.addEventListener('input', vfUpdatePassportAlerts); });
+    }
+  }
+
+  function vfBack() {
+    vfClearErrors();
+    if (vfStep === 0) { closeVisaModal(); return; }
+    vfShowStep(vfStep - 1);
+  }
+
+  function openVisaModal() {
+    vfStep = 0;
+    vfBuildStepper();
+    vfShowStep(0);
+    document.getElementById('vf-travel-alerts').innerHTML = '';
+    document.getElementById('vf-passport-alerts').innerHTML = '';
+    document.getElementById('visa-modal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    ['vf_adress_perso', 'vf_adress_sejour', 'vf_adres_sej2'].forEach(setupAddressAutocomplete);
+  }
+  function closeVisaModal() {
+    document.getElementById('visa-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.getElementById('visa-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeVisaModal();
+  });
+
+  async function vfGenerate() {
+    if (vfGenerating) return;
+    vfGenerating = true;
+    const btn = document.getElementById('vf-btn-next');
+    btn.textContent = 'Génération…';
+    btn.disabled = true;
+    try {
+      const resp = await fetch('assets/formulaire_visa.pdf');
+      const bytes = await resp.arrayBuffer();
+      const { PDFDocument } = PDFLib;
+      const pdfDoc = await PDFDocument.load(bytes);
+      const pdfForm = pdfDoc.getForm();
+
+      const set = (name, val) => { try { pdfForm.getTextField(name).setText(val||''); } catch(_){} };
+      const { PDFName } = PDFLib;
+      const checkGroup = (names, idx) => {
+        names.forEach((n, i) => {
+          try {
+            const cb = pdfForm.getCheckBox(n);
+            if (i === idx) {
+              cb.check();
+            } else {
+              cb.acroField.setValue(PDFName.of('Off'));
+            }
+            cb.updateAppearances();
+          } catch(_){}
+        });
+      };
+
+      // Identité
+      set('nom', vfGetVal('vf_nom').toUpperCase());
+      set('prenom', vfGetVal('vf_prenom'));
+      set('nom_jfille', vfGetVal('vf_nom_jfille').toUpperCase());
+      set('pseudo', vfGetVal('vf_pseudo'));
+      set('dat_nais4', vfGetVal('vf_jour_nais'));
+      set('dat_nais5', vfGetVal('vf_mois_nais'));
+      set('dat_nais6', vfGetVal('vf_annee_nais'));
+      set('lieu_nais1', vfGetVal('vf_lieu_nais'));
+      set('pay_nais1', vfGetVal('vf_pays_nais'));
+      set('filsde', vfGetVal('vf_nom_pere'));
+      set('et_de', vfGetVal('vf_nom_mere'));
+      checkGroup(['case1','case2'], vfData.sexe === 'M' ? 0 : 1);
+      const civilIdx = {celibataire:0,marie:1,divorce:2,veuf:3};
+      checkGroup(['case3','case4','case5','case6'], civilIdx[vfData.etat_civil]??0);
+
+      // Résidence
+      set('nationalite_origin', vfGetVal('vf_nationalite_origin'));
+      set('nationalite_actu', vfGetVal('vf_nationalite_actu'));
+      set('adress_perso', vfGetVal('vf_adress_perso'));
+      set('tel_perso', vfGetVal('vf_tel_perso'));
+
+      // Famille
+      set('prenom_conj', vfGetVal('vf_prenom_conj'));
+      set('nom_conj', vfGetVal('vf_nom_conj').toUpperCase());
+      set('dat_nais1', vfGetVal('vf_jour_nais_conj'));
+      set('dat_nais2', vfGetVal('vf_mois_nais_conj'));
+      set('dat_nais3', vfGetVal('vf_annee_nais_conj'));
+      set('pay_nais2', vfGetVal('vf_pays_nais_conj'));
+      set('nationalite_conj', vfGetVal('vf_nationalite_conj'));
+      set('fils_nom1', vfGetVal('vf_fils_nom1')); set('fils_dat_nais1', vfGetVal('vf_fils_dat1'));
+      set('fils_lieu_nais1', vfGetVal('vf_fils_lieu1')); set('fils_nat_nais1', vfGetVal('vf_fils_nat1'));
+      set('fils_nom2', vfGetVal('vf_fils_nom2')); set('fils_dat_nais2', vfGetVal('vf_fils_dat2'));
+      set('fils_lieu_nais2', vfGetVal('vf_fils_lieu2')); set('fils_nat_nais2', vfGetVal('vf_fils_nat2'));
+      set('fils_nom3', vfGetVal('vf_fils_nom3')); set('fils_dat_nais3', vfGetVal('vf_fils_dat3'));
+      set('fils_lieu_nais3', vfGetVal('vf_fils_lieu3')); set('fils_nat_nais3', vfGetVal('vf_fils_nat3'));
+
+      // Passeport
+      checkGroup(['case7','case8'], vfData.type_doc === 'ordinaire' ? 0 : 1);
+      set('num_pass', vfGetVal('vf_num_pass').toUpperCase());
+      set('deliv_par', vfGetVal('vf_deliv_par'));
+      set('dat_doc1', vfGetVal('vf_jour_deliv')); set('date_doc2', vfGetVal('vf_mois_deliv')); set('date_doc3', vfGetVal('vf_annee_deliv'));
+      set('dat_doc4', vfGetVal('vf_jour_exp')); set('date_doc5', vfGetVal('vf_mois_exp')); set('date_doc6', vfGetVal('vf_annee_exp'));
+
+      // Profession
+      set('prof', vfGetVal('vf_prof')); set('employeur', vfGetVal('vf_employeur'));
+      set('adress_prof', vfGetVal('vf_adress_prof')); set('tel_prof', vfGetVal('vf_tel_prof'));
+
+      // Voyage
+      const isTransit = vfData.type_visa === 'transit';
+      checkGroup(['case12','case13'], isTransit ? -1 : (vfData.type_visa === 'court' ? 0 : 1));
+      set('destin_final', vfGetVal('vf_destin_final'));
+      set('visa_sollicite', vfGetVal('vf_visa_sollicite'));
+      checkGroup(['case14','case15'], isTransit ? 1 : 0);
+      set('date_ent1', vfGetVal('vf_jour_entree')); set('date_ent2', vfGetVal('vf_mois_entree')); set('date_ent3', vfGetVal('vf_annee_entree'));
+      set('nbre_comb', String(vfData.duree_sejour||''));
+      const entreesIdx = {une:0,double:1,multiple:2};
+      checkGroup(['case9','case10','case11'], entreesIdx[vfData.nbre_entrees]??0);
+      checkGroup(['case16','case17'], vfData.transit_visa_dest==='oui'?0:vfData.transit_visa_dest==='non'?1:-1);
+
+      // Séjour
+      set('adress_sejour', vfGetVal('vf_adress_sejour'));
+      set('adres_sej2', vfGetVal('vf_adres_sej2'));
+      set('date_hitor', vfGetVal('vf_date_dernier_sejour'));
+      set('comb', String(vfGetVal('vf_nbre_sejours_prec')||''));
+
+      const filled = await pdfDoc.save();
+      const nom = vfGetVal('vf_nom') || 'visa';
+      const prenom = vfGetVal('vf_prenom') || '';
+      const filename = `formulaire_visa_${nom}_${prenom}.pdf`;
+      const blob = new Blob([filled], {type:'application/pdf'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+      closeVisaModal();
+      showToast('Formulaire téléchargé !', 'success');
+    } catch(err) {
+      console.error(err);
+      showToast('Erreur lors de la génération du PDF.');
+    } finally {
+      vfGenerating = false;
+      btn.disabled = false;
+      vfBuildStepper();
+    }
+  }
+</script>
+<script>
+  // Dynamic stats
+  document.getElementById('stat-lieux').textContent = PLACES.length + '+';
+  document.getElementById('stat-wilayas').textContent = new Set(PLACES.map(p => p.wilaya)).size;
+
+  // Featured places (top 8 by isFeatured + popularity)
+  const featured = PLACES.filter(p => p.isFeatured).sort((a,b) => b.popularity - a.popularity).slice(0,8);
+  renderGrid(featured, document.getElementById('featured-grid'));
+
+  // Wilaya grid (top wilayas by place count)
+  const wilayaGrid = document.getElementById('wilaya-grid');
+  const wilayaCounts = {};
+  PLACES.forEach(p => { wilayaCounts[p.wilaya] = (wilayaCounts[p.wilaya]||0)+1; });
+  const topWilayas = Object.entries(wilayaCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  wilayaGrid.innerHTML = topWilayas.map(([w, count]) => {
+    const seed = encodeURIComponent(w.replace(/[^a-z0-9]/gi,''));
+    const imgSrc = WILAYA_IMAGES[w] || `https://picsum.photos/seed/${seed}/400/300`;
+    return `
+    <a href="explorer.html?wilaya=${encodeURIComponent(w)}" class="wilaya-card" aria-label="${w} — ${count} lieux">
+      <img src="${imgSrc}" alt="${w}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${seed}/400/300'"/>
+      <div class="wilaya-card-body">
+        <div class="wilaya-card-name">${w}</div>
+        <div class="wilaya-card-count">${count} lieux</div>
+      </div>
+    </a>`;
+  }).join('');
+</script>
+
+</body>
+</html>

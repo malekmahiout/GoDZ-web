@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Circuit — GoDZ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .wizard { max-width: 760px; margin: 0 auto; padding: 40px 20px 80px; }
+    .step-pane { display: none; }
+    .step-pane.active { display: block; }
+    .wilaya-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 16px; }
+    .wilaya-option {
+      border: 2px solid var(--border); border-radius: 12px; padding: 14px 16px; cursor: pointer;
+      transition: border-color 150ms, background 150ms; background: white; font-family: inherit; text-align: left;
+    }
+    .wilaya-option:hover { border-color: var(--green); background: rgba(0,98,51,0.03); }
+    .wilaya-option.active { border-color: var(--green); background: rgba(0,98,51,0.07); }
+    .wilaya-option .name { font-weight: 700; font-size: 0.9rem; color: var(--dark); }
+    .wilaya-option .count { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .days-selector { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .day-btn {
+      width: 56px; height: 56px; border-radius: 12px; border: 2px solid var(--border);
+      background: white; font-family: inherit; font-size: 1.1rem; font-weight: 800; cursor: pointer;
+      transition: all 150ms; color: var(--dark);
+    }
+    .day-btn:hover { border-color: var(--green); }
+    .day-btn.active { border-color: var(--green); background: var(--green); color: white; }
+    .result-header { background: linear-gradient(135deg, #003d1f, #006233); color: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .day-block { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+    .day-header-bar { background: var(--green); color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .slot-row { display: flex; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); align-items: center; }
+    .slot-row:last-child { border-bottom: none; }
+    .slot-time { font-size: 0.75rem; font-weight: 700; color: var(--muted); min-width: 50px; }
+    .slot-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .slot-name { font-weight: 700; font-size: 0.88rem; color: var(--dark); }
+    .slot-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .slot-type { font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-left: auto; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="navbar-logo" aria-hidden="true"><img src="assets/favicon.png" alt="GoDZ" style="width:100%;height:100%;object-fit:contain"/></div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="explorer.html">Explorer</a></li>
+    <li style="position:relative"><a href="favoris.html"><span class="fav-count" style="display:none;position:absolute;top:8px;right:-4px;background:var(--red);color:white;font-size:0.55rem;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center"></span>Favoris</a></li>
+    <li><a href="carte.html">Carte</a></li>
+    <li><a href="itineraire.html" class="active">Circuit</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
+    </div>
+</nav>
+
+<div style="padding-top:var(--nav-h)">
+  <div class="wizard">
+    <!-- Step indicator -->
+    <div class="step-indicator" aria-label="Étapes du wizard">
+      <div class="step active" id="step-ind-1">
+        <div class="step-num">1</div>
+        <div class="step-label">Destination</div>
+      </div>
+      <div class="step-line" id="line-1"></div>
+      <div class="step" id="step-ind-2">
+        <div class="step-num">2</div>
+        <div class="step-label">Durée</div>
+      </div>
+      <div class="step-line" id="line-2"></div>
+      <div class="step" id="step-ind-3">
+        <div class="step-num">3</div>
+        <div class="step-label">Votre circuit</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Choose wilaya -->
+    <div class="step-pane active" id="pane-1">
+      <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:8px">Où souhaitez-vous aller ?</h1>
+      <p style="color:var(--muted);margin-bottom:20px">Choisissez une wilaya pour générer votre programme personnalisé.</p>
+      <div class="search-wrap" style="margin-bottom:16px;max-width:400px">
+        <input type="text" id="wilaya-search" class="search-input" placeholder="Filtrer les wilayas..." aria-label="Rechercher une wilaya"/>
+        <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+      </div>
+      <div class="wilaya-picker" id="wilaya-picker"></div>
+      <div style="margin-top:28px">
+        <button class="btn btn-primary btn-lg" onclick="goStep(2)" id="next-1" disabled>
+          Choisir la durée
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Choose days -->
+    <div class="step-pane" id="pane-2">
+      <button class="btn btn-ghost btn-sm" onclick="goStep(1)" style="margin-bottom:20px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour
+      </button>
+      <h1 style="font-size:1.8rem;font-weight:900;margin-bottom:8px">Combien de jours ?</h1>
+      <p style="color:var(--muted);margin-bottom:20px">Choisissez la durée de votre séjour à <strong id="dest-label"></strong>.</p>
+      <div class="days-selector" id="days-selector">
+        <button class="day-btn" data-days="1" onclick="selectDays(1,this)">1</button>
+        <button class="day-btn" data-days="2" onclick="selectDays(2,this)">2</button>
+        <button class="day-btn" data-days="3" onclick="selectDays(3,this)">3</button>
+        <button class="day-btn" data-days="4" onclick="selectDays(4,this)">4</button>
+        <button class="day-btn" data-days="5" onclick="selectDays(5,this)">5</button>
+        <button class="day-btn" data-days="6" onclick="selectDays(6,this)">6</button>
+        <button class="day-btn" data-days="7" onclick="selectDays(7,this)">7</button>
+      </div>
+      <div style="margin-top:32px">
+        <button class="btn btn-primary btn-lg" onclick="generateAndShow()" id="next-2" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:18px;height:18px"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Générer mon itinéraire
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Result -->
+    <div class="step-pane" id="pane-3">
+      <button class="btn btn-ghost btn-sm" onclick="goStep(2)" style="margin-bottom:20px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><polyline points="15 18 9 12 15 6"/></svg>
+        Modifier
+      </button>
+      <div class="result-header">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div>
+            <p style="font-size:0.8rem;opacity:0.7;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.06em">Votre circuit</p>
+            <h2 style="font-size:1.6rem;font-weight:900;color:white" id="result-title"></h2>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-sm" onclick="shareItinerary()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Partager
+            </button>
+            <button class="btn btn-sm" onclick="printItinerary()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Imprimer
+            </button>
+            <button class="btn btn-sm" onclick="regenerate()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.08"/></svg>
+              Regénérer
+            </button>
+          </div>
+        </div>
+        <div style="display:flex;gap:24px;margin-top:20px;flex-wrap:wrap">
+          <div><div style="font-size:1.4rem;font-weight:900;color:#FFD700" id="r-days"></div><div style="font-size:0.75rem;opacity:0.7">Jours</div></div>
+          <div><div style="font-size:1.4rem;font-weight:900;color:#FFD700" id="r-places"></div><div style="font-size:0.75rem;opacity:0.7">Lieux</div></div>
+          <div><div style="font-size:1.4rem;font-weight:900;color:#FFD700" id="r-wilaya"></div><div style="font-size:0.75rem;opacity:0.7">Wilaya</div></div>
+        </div>
+      </div>
+      <div id="itinerary-result"></div>
+    </div>
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <a href="index.html" class="mobile-nav-item"><img src="assets/favicon.png" alt="GoDZ" style="width:22px;height:22px;object-fit:contain;border-radius:5px"/>Accueil</a>
+    <a href="explorer.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Explorer</a>
+    <a href="carte.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/></svg>Carte</a>
+    <a href="favoris.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Favoris</a>
+    <a href="itineraire.html" class="mobile-nav-item active"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" fill="none" stroke="currentColor" stroke-width="2"/></svg>Circuit</a>
+  </div>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  let selWilaya = '';
+  let selDays = 0;
+  let currentItin = null;
+
+  // Pre-select from URL param
+  const urlWilaya = getParam('wilaya');
+
+  // Build wilaya count
+  const wilayaCounts = {};
+  PLACES.forEach(p => { wilayaCounts[p.wilaya] = (wilayaCounts[p.wilaya]||0)+1; });
+  const wilayaList = Object.entries(wilayaCounts).sort((a,b)=>b[1]-a[1]).map(([w])=>w);
+
+  function renderWilayaPicker(filter='') {
+    const items = filter ? wilayaList.filter(w=>w.toLowerCase().includes(filter.toLowerCase())) : wilayaList;
+    document.getElementById('wilaya-picker').innerHTML = items.map(w => `
+      <button class="wilaya-option${selWilaya===w?' active':''}" onclick="selectWilaya('${w}',this)">
+        <div class="name">${w}</div>
+        <div class="count">${wilayaCounts[w]} lieux</div>
+      </button>`).join('');
+  }
+
+  function selectWilaya(w, btn) {
+    selWilaya = w;
+    document.querySelectorAll('.wilaya-option').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('next-1').disabled = false;
+  }
+
+  function selectDays(d, btn) {
+    selDays = d;
+    document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('next-2').disabled = false;
+  }
+
+  function goStep(n) {
+    document.querySelectorAll('.step-pane').forEach((p,i)=>p.classList.toggle('active',i===n-1));
+    ['step-ind-1','step-ind-2','step-ind-3'].forEach((id,i)=>{
+      const el=document.getElementById(id);
+      el.classList.toggle('done',i<n-1);
+      el.classList.toggle('active',i===n-1);
+    });
+    document.getElementById('line-1').classList.toggle('done',n>1);
+    document.getElementById('line-2').classList.toggle('done',n>2);
+    window.scrollTo({top:0,behavior:'smooth'});
+    if (n===2) document.getElementById('dest-label').textContent = selWilaya;
+  }
+
+  function generateAndShow() {
+    currentItin = generateItinerary(selWilaya, selDays);
+    renderItinerary();
+    goStep(3);
+    const url = new URL(location.href);
+    url.searchParams.set('wilaya', selWilaya);
+    url.searchParams.set('days', selDays);
+    history.replaceState(null, '', url.toString());
+  }
+
+  function regenerate() {
+    currentItin = generateItinerary(selWilaya, selDays);
+    renderItinerary();
+  }
+
+  function renderItinerary() {
+    if (!currentItin) return;
+    document.getElementById('result-title').textContent = `${selDays} jour${selDays>1?'s':''} à ${selWilaya}`;
+    document.getElementById('r-days').textContent = selDays;
+    const total = currentItin.reduce((s,d)=>s+d.places.length,0);
+    document.getElementById('r-places').textContent = total;
+    document.getElementById('r-wilaya').textContent = selWilaya;
+
+    document.getElementById('itinerary-result').innerHTML = currentItin.map(day => `
+      <div class="day-block">
+        <div class="day-header-bar">
+          <span>Jour ${day.day}</span>
+          <span style="font-size:0.8rem;opacity:0.8">${day.places.length} activités</span>
+        </div>
+        ${day.places.map(slot => `
+          <div class="slot-row">
+            <div class="slot-time">${slot.time}</div>
+            <div class="slot-dot" style="background:${CAT_COLORS[slot.place.category]}"></div>
+            <div style="flex:1;min-width:0">
+              <div class="slot-name">${slot.place.nameFr}</div>
+              <div class="slot-meta">${slot.label} · ${slot.place.wilaya} · ★ ${slot.place.googleRating}</div>
+            </div>
+            <span class="slot-type" style="background:${CAT_COLORS[slot.place.category]}22;color:${CAT_COLORS[slot.place.category]}">${CAT_LABELS[slot.place.category]}</span>
+            <a href="lieu.html?id=${slot.place.id}" class="btn btn-ghost btn-sm" style="margin-left:8px;flex-shrink:0">→</a>
+          </div>`).join('')}
+      </div>`).join('');
+
+    if (!document.getElementById('itinerary-result').children.length) {
+      document.getElementById('itinerary-result').innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/></svg>
+          <h3>Pas assez de lieux</h3>
+          <p>La wilaya "${selWilaya}" n'a pas assez de lieux recensés pour ${selDays} jour(s). Essayez une autre wilaya ou réduisez la durée.</p>
+        </div>`;
+    }
+  }
+
+  function printItinerary() { window.print(); }
+
+  function shareItinerary() {
+    const url = new URL(location.href);
+    url.searchParams.set('wilaya', selWilaya);
+    url.searchParams.set('days', selDays);
+    const shareUrl = url.toString();
+    const text = `Circuit ${selDays} jour${selDays>1?'s':''} à ${selWilaya} — GoDZ`;
+    if (navigator.share) {
+      navigator.share({ title: text, url: shareUrl }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast('Lien copié dans le presse-papier !', 'success');
+      }).catch(() => {
+        showToast('Impossible de copier le lien');
+      });
+    }
+  }
+
+  document.getElementById('wilaya-search').addEventListener('input', e => renderWilayaPicker(e.target.value));
+
+  renderWilayaPicker();
+
+  // Auto-select wilaya from URL
+  if (urlWilaya) {
+    const btn = [...document.querySelectorAll('.wilaya-option')].find(b => b.querySelector('.name')?.textContent === urlWilaya);
+    if (btn) selectWilaya(urlWilaya, btn);
+    else {
+      selWilaya = urlWilaya;
+      document.getElementById('next-1').disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

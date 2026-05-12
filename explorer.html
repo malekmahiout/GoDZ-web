@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Explorer — GoDZ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .explorer-layout { display:grid; grid-template-columns:280px 1fr; gap:0; min-height:calc(100vh - var(--nav-h)); padding-top:var(--nav-h); }
+    .sidebar { background:white; border-right:1px solid var(--border); padding:24px; height:calc(100vh - var(--nav-h)); overflow-y:auto; position:sticky; top:var(--nav-h); }
+    .main-content { padding:24px; overflow-x:hidden; }
+    .filter-group { margin-bottom:28px; }
+    .filter-group h3 { font-size:0.82rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
+    .filter-list { display:flex; flex-direction:column; gap:6px; }
+    .filter-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:10px; cursor:pointer; transition:background 150ms, color 150ms; color:var(--dark); font-size:0.88rem; font-weight:500; border:none; background:none; width:100%; text-align:left; }
+    .filter-item:hover { background:var(--light); }
+    .filter-item.active { background:rgba(0,98,51,0.08); color:var(--green); }
+    .filter-item .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .filter-item .count { margin-left:auto; font-size:0.75rem; background:var(--border); color:var(--muted); padding:1px 7px; border-radius:10px; }
+    .filter-item.active .count { background:var(--green); color:white; }
+    .sort-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+    .result-count { font-size:0.88rem; color:var(--muted); font-weight:500; }
+    .result-count strong { color:var(--dark); }
+    .sidebar-toggle { display:none; }
+    @media(max-width:900px) {
+      .explorer-layout { grid-template-columns:1fr; }
+      .sidebar { display:none; position:fixed; top:var(--nav-h); left:0; width:280px; height:100vh; z-index:90; border-right:1px solid var(--border); box-shadow:4px 0 24px rgba(0,0,0,0.1); }
+      .sidebar.open { display:block; }
+      .sidebar-toggle { display:flex; }
+      .main-content { padding:16px; }
+    }
+  </style>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="navbar-brand">
+    <div class="navbar-logo" aria-hidden="true"><img src="assets/favicon.png" alt="GoDZ" style="width:100%;height:100%;object-fit:contain"/></div>
+  </a>
+  <ul class="navbar-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="explorer.html" class="active">Explorer</a></li>
+    <li style="position:relative"><a href="favoris.html"><span class="fav-count" style="display:none;position:absolute;top:8px;right:-4px;background:var(--red);color:white;font-size:0.55rem;font-weight:700;width:15px;height:15px;border-radius:50%;align-items:center;justify-content:center"></span>Favoris</a></li>
+    <li><a href="carte.html">Carte</a></li>
+    <li><a href="itineraire.html">Circuit</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
+    <button class="btn btn-icon sidebar-toggle" id="sidebar-btn" aria-label="Filtres">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="explorer-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:24px;color:var(--dark)">Filtres</h2>
+
+    <!-- Search -->
+    <div class="filter-group">
+      <div class="search-wrap" style="position:relative">
+        <input type="text" id="search-input" class="search-input" placeholder="Rechercher..." aria-label="Rechercher un lieu" autocomplete="off"/>
+        <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <div id="explorer-ac" class="ac-dropdown" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Category filter -->
+    <div class="filter-group">
+      <h3>Catégorie</h3>
+      <div class="filter-list" id="cat-filters"></div>
+    </div>
+
+    <!-- Wilaya filter -->
+    <div class="filter-group">
+      <h3>Wilaya</h3>
+      <div class="select-wrap">
+        <select id="wilaya-select" class="select" style="width:100%" aria-label="Filtrer par wilaya">
+          <option value="">Toutes les wilayas</option>
+        </select>
+        <span class="select-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+      </div>
+    </div>
+
+    <!-- Featured only -->
+    <div class="filter-group">
+      <h3>Options</h3>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:0.88rem;color:var(--dark)">
+        <input type="checkbox" id="featured-only" style="accent-color:var(--green);width:16px;height:16px"/>
+        Lieux vedette uniquement
+      </label>
+    </div>
+
+    <!-- Min rating -->
+    <div class="filter-group">
+      <h3>Note minimale</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="chip active" data-min="0" id="r0" onclick="setMinRating(0,this)">Tous</button>
+        <button class="chip" data-min="4" id="r4" onclick="setMinRating(4,this)">4.0+</button>
+        <button class="chip" data-min="4.5" id="r4.5" onclick="setMinRating(4.5,this)">4.5+</button>
+      </div>
+    </div>
+
+    <button onclick="resetFilters()" class="btn btn-ghost btn-sm" style="width:100%;color:var(--red)">
+      Réinitialiser les filtres
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="sort-bar">
+      <div>
+        <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:2px">Explorer les lieux</h1>
+        <p class="result-count"><strong id="count">0</strong> lieux trouvés</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="select-wrap">
+          <select id="sort-select" class="select" aria-label="Trier par" onchange="applyFilters()">
+            <option value="popularity">Popularité</option>
+            <option value="rating">Mieux notés</option>
+            <option value="reviews">Plus d'avis</option>
+            <option value="name">Nom A→Z</option>
+          </select>
+          <span class="select-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filter chips -->
+    <div id="active-filters" class="filters" style="margin-bottom:20px"></div>
+
+    <!-- Grid -->
+    <div class="places-grid" id="places-grid">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap"></div>
+  </main>
+</div>
+
+<!-- Mobile nav -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-items">
+    <a href="index.html" class="mobile-nav-item"><img src="assets/favicon.png" alt="GoDZ" style="width:22px;height:22px;object-fit:contain;border-radius:5px"/>Accueil</a>
+    <a href="explorer.html" class="mobile-nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Explorer</a>
+    <a href="carte.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Carte</a>
+    <a href="favoris.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Favoris</a>
+    <a href="itineraire.html" class="mobile-nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Circuit</a>
+  </div>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  let activeCategory = '';
+  let activeWilaya = '';
+  let minRating = 0;
+  let featuredOnly = false;
+  let searchQ = '';
+  let currentPage = 1;
+  const PER_PAGE = 18;
+
+  // Init from URL params
+  const params = new URLSearchParams(location.search);
+  if (params.get('cat')) activeCategory = params.get('cat');
+  if (params.get('wilaya')) activeWilaya = params.get('wilaya');
+  if (params.get('q')) searchQ = params.get('q');
+
+  // Build category filters
+  const catCounts = {};
+  PLACES.forEach(p => { catCounts[p.category] = (catCounts[p.category]||0)+1; });
+  document.getElementById('cat-filters').innerHTML =
+    `<button class="filter-item${activeCategory===''?' active':''}" data-cat="" onclick="setCategory('',this)">
+       <span class="dot" style="background:var(--green)"></span>Toutes
+       <span class="count">${PLACES.length}</span>
+     </button>` +
+    CATEGORIES.map(cat => `
+      <button class="filter-item${activeCategory===cat?' active':''}" data-cat="${cat}" onclick="setCategory('${cat}',this)">
+        <span class="dot" style="background:${CAT_COLORS[cat]}"></span>
+        ${CAT_LABELS[cat]}
+        <span class="count">${catCounts[cat]||0}</span>
+      </button>`).join('');
+
+  // Build wilaya select
+  const wilayaSelect = document.getElementById('wilaya-select');
+  WILAYAS.forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w; opt.textContent = w;
+    if (w === activeWilaya) opt.selected = true;
+    wilayaSelect.appendChild(opt);
+  });
+
+  // Init search
+  if (searchQ) document.getElementById('search-input').value = searchQ;
+
+  // Events
+  document.getElementById('search-input').addEventListener('input', e => { searchQ = e.target.value; currentPage=1; applyFilters(); });
+  document.getElementById('wilaya-select').addEventListener('change', e => { activeWilaya = e.target.value; currentPage=1; applyFilters(); });
+  document.getElementById('featured-only').addEventListener('change', e => { featuredOnly = e.target.checked; currentPage=1; applyFilters(); });
+
+  function setCategory(cat, el) {
+    activeCategory = cat;
+    document.querySelectorAll('#cat-filters .filter-item').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentPage=1; applyFilters();
+  }
+  function setMinRating(val, el) {
+    minRating = val;
+    document.querySelectorAll('[data-min]').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    currentPage=1; applyFilters();
+  }
+  function resetFilters() {
+    activeCategory=''; activeWilaya=''; minRating=0; featuredOnly=false; searchQ=''; currentPage=1;
+    document.getElementById('search-input').value='';
+    document.getElementById('wilaya-select').value='';
+    document.getElementById('featured-only').checked=false;
+    document.querySelectorAll('#cat-filters .filter-item').forEach((b,i)=>b.classList.toggle('active',i===0));
+    document.querySelectorAll('[data-min]').forEach((b,i)=>b.classList.toggle('active',i===0));
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const sort = document.getElementById('sort-select').value;
+    let results = PLACES.filter(p => {
+      if (activeCategory && p.category !== activeCategory) return false;
+      if (activeWilaya && p.wilaya !== activeWilaya) return false;
+      if (featuredOnly && !p.isFeatured) return false;
+      if (p.googleRating < minRating) return false;
+      if (searchQ) {
+        const q = searchQ.toLowerCase();
+        if (!p.nameFr.toLowerCase().includes(q) && !p.wilaya.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+
+    // Sort
+    if (sort === 'popularity') results.sort((a,b) => b.popularity - a.popularity);
+    else if (sort === 'rating') results.sort((a,b) => b.googleRating - a.googleRating);
+    else if (sort === 'reviews') results.sort((a,b) => b.googleReviewCount - a.googleReviewCount);
+    else if (sort === 'name') results.sort((a,b) => a.nameFr.localeCompare(b.nameFr,'fr'));
+
+    document.getElementById('count').textContent = results.length;
+
+    // Recompute category counts based on non-category filters only
+    const base = PLACES.filter(p => {
+      if (activeWilaya && p.wilaya !== activeWilaya) return false;
+      if (featuredOnly && !p.isFeatured) return false;
+      if (p.googleRating < minRating) return false;
+      if (searchQ) {
+        const q = searchQ.toLowerCase();
+        if (!p.nameFr.toLowerCase().includes(q) && !p.wilaya.toLowerCase().includes(q) && !p.description.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+    const dynCounts = {};
+    base.forEach(p => { dynCounts[p.category] = (dynCounts[p.category]||0)+1; });
+    document.querySelectorAll('#cat-filters .filter-item').forEach(btn => {
+      const cat = btn.dataset.cat;
+      const countEl = btn.querySelector('.count');
+      if (countEl) countEl.textContent = cat === '' ? base.length : (dynCounts[cat]||0);
+    });
+
+    // Active filter tags
+    const tags = [];
+    if (activeCategory) tags.push(`<button class="chip active" onclick="setCategory('',document.querySelector('#cat-filters .filter-item'))">${CAT_LABELS[activeCategory]} ×</button>`);
+    if (activeWilaya) tags.push(`<button class="chip active" onclick="document.getElementById('wilaya-select').value='';activeWilaya='';applyFilters()">${activeWilaya} ×</button>`);
+    if (searchQ) tags.push(`<button class="chip active" onclick="document.getElementById('search-input').value='';searchQ='';applyFilters()">« ${searchQ} » ×</button>`);
+    document.getElementById('active-filters').innerHTML = tags.join('');
+
+    // Pagination
+    const total = results.length;
+    const totalPages = Math.ceil(total / PER_PAGE);
+    currentPage = Math.min(currentPage, totalPages || 1);
+    const pageResults = results.slice((currentPage-1)*PER_PAGE, currentPage*PER_PAGE);
+    renderGrid(pageResults, document.getElementById('places-grid'));
+
+    // Pagination buttons
+    const pg = document.getElementById('pagination');
+    if (totalPages <= 1) { pg.innerHTML=''; return; }
+    let html = '';
+    if (currentPage > 1) html += `<button class="btn btn-ghost btn-sm" onclick="goPage(${currentPage-1})">← Précédent</button>`;
+    const start = Math.max(1, currentPage-2), end = Math.min(totalPages, currentPage+2);
+    for (let i=start; i<=end; i++) html += `<button class="btn btn-sm${i===currentPage?' btn-primary':' btn-ghost'}" onclick="goPage(${i})">${i}</button>`;
+    if (currentPage < totalPages) html += `<button class="btn btn-ghost btn-sm" onclick="goPage(${currentPage+1})">Suivant →</button>`;
+    pg.innerHTML = html;
+  }
+
+  function goPage(p) { currentPage=p; applyFilters(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+  // Mobile sidebar toggle
+  document.getElementById('sidebar-btn')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  applyFilters();
+
+  // Autocomplete on search-input (select a suggestion → navigate to lieu)
+  (function() {
+    const input = document.getElementById('search-input');
+    const dropdown = document.getElementById('explorer-ac');
+    if (!input || !dropdown) return;
+    let activeIdx = -1;
+
+    function normalize(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+
+    function buildItem(place) {
+      const color = CAT_COLORS[place.category] || '#006233';
+      const icon = CAT_ICONS[place.category] || '';
+      return `<a class="ac-item" href="lieu.html?id=${place.id}">
+        <div class="ac-icon" style="background:${color}22;color:${color}">${icon}</div>
+        <div>
+          <div class="ac-name">${place.nameFr}</div>
+          <div class="ac-sub">${CAT_LABELS[place.category]} · ${place.wilaya}</div>
+        </div>
+      </a>`;
+    }
+
+    function show(items) {
+      activeIdx = -1;
+      if (!items.length) { dropdown.style.display = 'none'; return; }
+      dropdown.innerHTML = items.map(buildItem).join('');
+      dropdown.style.display = 'block';
+    }
+
+    function hide() { dropdown.style.display = 'none'; activeIdx = -1; }
+
+    input.addEventListener('input', () => {
+      const q = normalize(input.value.trim());
+      if (q.length < 2) { hide(); return; }
+      const found = PLACES.filter(p =>
+        normalize(p.nameFr).includes(q) ||
+        normalize(p.wilaya).includes(q) ||
+        normalize(CAT_LABELS[p.category] || '').includes(q)
+      ).slice(0, 8);
+      show(found);
+    });
+
+    input.addEventListener('keydown', e => {
+      const items = dropdown.querySelectorAll('.ac-item');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIdx = Math.min(activeIdx + 1, items.length - 1);
+        items.forEach((el, i) => el.classList.toggle('ac-active', i === activeIdx));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIdx = Math.max(activeIdx - 1, -1);
+        items.forEach((el, i) => el.classList.toggle('ac-active', i === activeIdx));
+      } else if (e.key === 'Enter' && activeIdx >= 0) {
+        e.preventDefault();
+        items[activeIdx].click();
+      } else if (e.key === 'Escape') {
+        hide();
+      }
+    });
+
+    document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) hide(); });
+  })();
+</script>
+</body>
+</html>
