@@ -32,6 +32,14 @@
       .sidebar-toggle { display:flex; }
       .main-content { padding:16px; }
     }
+    /* Le CSS global cache tous les .btn dans .navbar-actions sur mobile —
+       on réaffiche uniquement le bouton filtre sur cette page */
+    @media(max-width:768px) {
+      .sidebar-toggle { display:flex !important; }
+      /* Overlay semi-transparent derrière le sidebar ouvert */
+      .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:89; }
+      .sidebar-overlay.open { display:block; }
+    }
   </style>
 </head>
 <body>
@@ -55,6 +63,7 @@
   </div>
 </nav>
 
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <div class="explorer-layout">
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
@@ -294,9 +303,15 @@
   function goPage(p) { currentPage=p; applyFilters(); window.scrollTo({top:0,behavior:'smooth'}); }
 
   // Mobile sidebar toggle
-  document.getElementById('sidebar-btn')?.addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('open');
-  });
+  function toggleSidebar(force) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const open = force !== undefined ? force : !sidebar.classList.contains('open');
+    sidebar.classList.toggle('open', open);
+    overlay.classList.toggle('open', open);
+  }
+  document.getElementById('sidebar-btn')?.addEventListener('click', () => toggleSidebar());
+  document.getElementById('sidebar-overlay')?.addEventListener('click', () => toggleSidebar(false));
 
   applyFilters();
 
