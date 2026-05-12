@@ -16,6 +16,7 @@
       position: relative;
       width: 100%;
       height: calc(100vh - var(--nav-h));
+      height: calc(100svh - var(--nav-h));
       min-height: 500px;
       overflow: hidden;
       background: #0a0a0a;
@@ -136,18 +137,23 @@
       .hero-card {
         top: auto;
         right: auto;
-        bottom: 16px;
+        bottom: calc(74px + 12px);
         left: 50%;
         transform: translateX(-50%);
         width: calc(100% - 32px);
-        padding: 20px 20px;
+        padding: 18px 16px;
         border-radius: 16px;
         flex-direction: column;
         gap: 0;
       }
-      .sc-actions { flex-direction: row; }
-      .sc-actions .btn { width: auto; flex: 1; }
-      .sc-divider { margin-bottom: 14px; }
+      .sc-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .sc-actions > *:first-child { grid-column: span 2; }
+      .sc-actions .btn { padding: 12px 10px; font-size: 0.875rem; }
+      .sc-divider { margin-bottom: 12px; }
       .sc-stats { flex-direction: row; gap: 0; }
       .sc-stat {
         flex: 1;
@@ -164,6 +170,7 @@
     }
     @media (max-width: 480px) {
       .sc-desc { display: none; }
+      .hero-card { padding: 14px; }
     }
   </style>
 </head>
@@ -183,9 +190,6 @@
   </ul>
   <div class="navbar-actions">
     <img src="assets/bandeau_droit.png" alt="" class="navbar-bandeau"/>
-    <button class="navbar-menu-btn" aria-label="Menu">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
   </div>
 </nav>
 
